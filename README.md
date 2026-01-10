@@ -1,150 +1,70 @@
-<picture>
-    <source srcset="./.github/logo-dark.png" media="(prefers-color-scheme: light)">
-    <source srcset="./.github/logo-white.png" media="(prefers-color-scheme: dark)">
-    <img src="./.github/logo-dark.png" alt="logo">
-</picture>
+# Woodll Tools
 
-<p align="center">
-Useful tools for developer and people working in IT. <a href="https://it-tools.tech">Try it!</a>
-</p>
+一个面向开发者和 IT 从业人员的在线工具箱，支持后台管理与站点配置。
 
+## 功能亮点
 
-## Sponsors
+- 多工具集合（加密、转换、文本、网络等）
+- 后台管理：工具上架/隐藏、分类、排序、推荐
+- 站点配置：标题、标题描述、SEO 描述、站点网址
+- 多语言与本地化配置
+- 前后端分离，静态部署 + PHP API
 
-<div align="center" markdown="1">
-<p align="center">
-  IT-Tools is proudly sponsored by:
-</p>
-
-<a href="https://go.warp.dev/it-tools">
-  <img alt="Warp sponsorship" width="400" src="https://raw.githubusercontent.com/warpdotdev/brand-assets/refs/heads/main/Github/Sponsor/Warp-Github-LG-01.png">
-</a>
-
-### [Warp, built for coding with multiple AI agents.](https://go.warp.dev/it-tools)
-[Available for MacOS, Linux, & Windows](https://go.warp.dev/it-tools)<br>
-
-</div>
-
-## Functionalities and roadmap
-
-Please check the [issues](https://github.com/CorentinTh/it-tools/issues) to see if some feature listed to be implemented.
-
-You have an idea of a tool? Submit a [feature request](https://github.com/CorentinTh/it-tools/issues/new/choose)!
-
-## Self host
-
-Self host solutions for your homelab
-
-**From docker hub:**
-
-```sh
-docker run -d --name it-tools --restart unless-stopped -p 8080:80 corentinth/it-tools:latest
-```
-
-**From github packages:**
-
-```sh
-docker run -d --name it-tools --restart unless-stopped -p 8080:80 ghcr.io/corentinth/it-tools:latest
-```
-
-**Other solutions:**
-
-- [Cloudron](https://www.cloudron.io/store/tech.ittools.cloudron.html)
-- [Tipi](https://www.runtipi.io/docs/apps-available)
-- [Unraid](https://unraid.net/community/apps?q=it-tools)
-
-## Contribute
-
-### Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) with the following extensions:
-
-- [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur)
-- [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-- [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
-- [i18n Ally](https://marketplace.visualstudio.com/items?itemName=lokalise.i18n-ally)
-
-with the following settings:
-
-```json
-{
-  "editor.formatOnSave": false,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  },
-  "i18n-ally.localesPaths": ["locales", "src/tools/*/locales"],
-  "i18n-ally.keystyle": "nested"
-}
-```
-
-### Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
-
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
-
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
-
-### Project Setup
+## 开发
 
 ```sh
 pnpm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
 pnpm dev
 ```
 
-### Type-Check, Compile and Minify for Production
+## 构建
 
 ```sh
 pnpm build
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+构建完成后，产物在 `dist/`。PHP API 会自动复制到 `dist/api`，并生成 `dist/data`。
 
-```sh
-pnpm test
+## 部署（Nginx + PHP）
+
+将 `dist/` 上传到站点根目录，确保 PHP 已启用，并且 `data/`、`uploads/` 可写。
+
+示例 Nginx 规则：
+
+```nginx
+location /api/ {
+  try_files $uri /api/index.php?$query_string;
+}
+
+location ~ \.php$ {
+  include fastcgi_params;
+  fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+  fastcgi_param PATH_INFO $fastcgi_path_info;
+  fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+}
+
+location / {
+  try_files $uri $uri/ /index.html;
+}
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+## 后台管理
+
+- 访问：`/admin`
+- 默认账号：`admin`
+- 默认密码：`admin123`
+
+生产环境请及时修改密码或通过环境变量设置：
 
 ```sh
-pnpm lint
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=your-strong-password
 ```
 
-### Create a new tool
+## 开源说明
 
-To create a new tool, there is a script that generate the boilerplate of the new tool, simply run:
-
-```sh
-pnpm run script:create:tool my-tool-name
-```
-
-It will create a directory in `src/tools` with the correct files, and a the import in `src/tools/index.ts`. You will just need to add the imported tool in the proper category and develop the tool.
-
-## Contributors
-
-Big thanks to all the people who have already contributed!
-
-[![contributors](https://contrib.rocks/image?repo=corentinth/it-tools&refresh=1)](https://github.com/corentinth/it-tools/graphs/contributors)
-
-## Credits
-
-Coded with ❤️ by [Corentin Thomasset](https://corentin.tech?utm_source=it-tools&utm_medium=readme).
-
-This project is continuously deployed using [vercel.com](https://vercel.com).
-
-Contributor graph is generated using [contrib.rocks](https://contrib.rocks/preview?repo=corentinth/it-tools).
-
-<a href="https://www.producthunt.com/posts/it-tools?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-it&#0045;tools" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=345793&theme=light" alt="IT&#0032;Tools - Collection&#0032;of&#0032;handy&#0032;online&#0032;tools&#0032;for&#0032;devs&#0044;&#0032;with&#0032;great&#0032;UX | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
-<a href="https://www.producthunt.com/posts/it-tools?utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-it&#0045;tools" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=345793&theme=light&period=daily" alt="IT&#0032;Tools - Collection&#0032;of&#0032;handy&#0032;online&#0032;tools&#0032;for&#0032;devs&#0044;&#0032;with&#0032;great&#0032;UX | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+本项目基于 [IT Tools](https://github.com/CorentinTh/it-tools) 进行二次开发。
 
 ## License
 
-This project is under the [GNU GPLv3](LICENSE).
+[GNU GPLv3](LICENSE)
