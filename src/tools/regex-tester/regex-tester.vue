@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import RandExp from 'randexp';
+import { ref } from 'vue';
 import { render } from '@regexper/render';
 import type { ShadowRootExpose } from 'vue-shadow-dom';
+
+import RegexMemo from '../regex-memo/regex-memo.vue';
+
 import { matchRegex } from './regex-tester.service';
 import { useValidation } from '@/composable/validation';
 import { useQueryParamOrStorage } from '@/composable/queryParams';
@@ -60,16 +63,6 @@ const results = computed(() => {
   }
 });
 
-const sample = computed(() => {
-  try {
-    const randexp = new RandExp(new RegExp(regex.value.replace(/\(\?\<[^\>]*\>/g, '(?:')));
-    return randexp.gen();
-  }
-  catch (_) {
-    return '';
-  }
-});
-
 watchEffect(
   async () => {
     const regexValue = regex.value;
@@ -90,106 +83,250 @@ watchEffect(
     }
   },
 );
+
+const quickPatterns = [
+  { label: '匹配 HTML 标签', pattern: '<[^>]+>' },
+  { label: '匹配 URL', pattern: 'https?://[^\\s]+' },
+  { label: '匹配 URL 中的域名', pattern: '(?<=https?://)[\\w.-]+' },
+  { label: '匹配邮箱用户名', pattern: '^[\\w.-]+' },
+  { label: '匹配邮箱地址', pattern: '[\\w.-]+@[\\w.-]+\\.[A-Za-z]{2,6}' },
+  { label: '匹配 IPv4 地址', pattern: '\\b(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)){3}\\b' },
+  { label: '匹配手机号', pattern: '1[3-9]\\d{9}' },
+  { label: '匹配身份证号', pattern: '\\b(?:\\d{15}|\\d{17}[\\dXx])\\b' },
+  { label: '匹配十六进制颜色', pattern: '#[A-Fa-f0-9]{6}' },
+  { label: '匹配 QQ 号', pattern: '[1-9][0-9]{4,9}' },
+  { label: '匹配纯数字', pattern: '\\d+' },
+  { label: '匹配中文字符', pattern: '[\\u4e00-\\u9fa5]+' },
+  { label: '匹配中国邮政编码', pattern: '\\b\\d{6}\\b' },
+  { label: '匹配浮点数', pattern: '[-+]?(?:\\d*\\.\\d+|\\d+)' },
+  { label: '匹配 JavaScript 标识符', pattern: '[A-Za-z_$][A-Za-z0-9_$]*' },
+  { label: '匹配 MAC 地址', pattern: '\\b[0-9A-Fa-f]{2}(?::[0-9A-Fa-f]{2}){5}\\b' },
+  { label: '匹配 UUID', pattern: '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}' },
+  { label: '匹配 HTML 注释', pattern: '<!--[\\s\\S]*?-->' },
+  { label: '匹配 Base64 文字', pattern: '(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?' },
+  { label: '匹配 Markdown 标题', pattern: '^#{1,6}\\s.*' },
+  { label: '匹配端口号', pattern: ':\\d{1,5}\\b' },
+  { label: '匹配日期 (MM/DD/YYYY)', pattern: '\\b(?:0[1-9]|1[0-2])/(?:0[1-9]|[12]\\d|3[01])/\\d{4}\\b' },
+  { label: '匹配日期 (YYYY-MM-DD)', pattern: '\\d{4}-\\d{2}-\\d{2}' },
+  { label: '匹配 HH:MM 时间', pattern: '\\b(?:[01]\\d|2[0-3]):[0-5]\\d\\b' },
+];
+
+function applyQuickPattern(pattern: string) {
+  regex.value = `${regex.value}${pattern}`;
+}
 </script>
 
 <template>
-  <div max-w-600px>
-    <c-card :title="$t('tools.regex-tester.regexTitle')" mb-1>
-      <c-input-text
-        v-model:value="regex"
-        :label="$t('tools.regex-tester.regexLabel')"
-        :placeholder="$t('tools.regex-tester.regexPlaceholder')"
-        multiline
-        rows="3"
-        :validation="regexValidation"
-      />
-      <router-link target="_blank" to="/regex-memo" mb-1 mt-1>
-        {{ $t('tools.regex-tester.cheatsheet') }}
-      </router-link>
-      <n-space>
-        <n-checkbox v-model:checked="global">
-          <span :title="$t('tools.regex-tester.flagGlobalTitle')">{{ $t('tools.regex-tester.flagGlobal') }} (<code>g</code>)</span>
-        </n-checkbox>
-        <n-checkbox v-model:checked="ignoreCase">
-          <span :title="$t('tools.regex-tester.flagIgnoreCaseTitle')">{{ $t('tools.regex-tester.flagIgnoreCase') }} (<code>i</code>)</span>
-        </n-checkbox>
-        <n-checkbox v-model:checked="multiline">
-          <span :title="$t('tools.regex-tester.flagMultilineTitle')">{{ $t('tools.regex-tester.flagMultiline') }}(<code>m</code>)</span>
-        </n-checkbox>
-        <n-checkbox v-model:checked="dotAll">
-          <span :title="$t('tools.regex-tester.flagDotAllTitle')">{{ $t('tools.regex-tester.flagDotAll') }}(<code>s</code>)</span>
-        </n-checkbox>
-        <n-checkbox v-model:checked="unicode">
-          <span :title="$t('tools.regex-tester.flagUnicodeTitle')">{{ $t('tools.regex-tester.flagUnicode') }}(<code>u</code>)</span>
-        </n-checkbox>
-        <n-checkbox v-model:checked="unicodeSets">
-          <span :title="$t('tools.regex-tester.flagUnicodeSetsTitle')">{{ $t('tools.regex-tester.flagUnicodeSets') }} (<code>v</code>)</span>
-        </n-checkbox>
-      </n-space>
+  <div class="regex-tester-root">
+    <section class="regex-memo-panel">
+      <c-card :title="$t('tools.regex-tester.cheatsheet')">
+        <RegexMemo />
+      </c-card>
+    </section>
 
-      <n-divider />
+    <section class="regex-tester-panel">
+      <c-card>
+        <div class="quick-patterns">
+          <div class="quick-patterns-title">
+            {{ $t('tools.regex-tester.quickPatternsTitle') }}
+          </div>
+          <n-space wrap size="small">
+            <n-button
+              v-for="(item, index) in quickPatterns"
+              :key="item.label"
+              type="default"
+              size="small"
+              text
+              class="quick-pattern-btn"
+              :class="{ 'quick-pattern-btn--alt': index % 2 === 1 }"
+              @click="applyQuickPattern(item.pattern)"
+            >
+              {{ item.label }}
+            </n-button>
+          </n-space>
+        </div>
+        <c-input-text
+          v-model:value="regex"
+          :label="$t('tools.regex-tester.regexLabel')"
+          :placeholder="$t('tools.regex-tester.regexPlaceholder')"
+          multiline
+          rows="3"
+          :validation="regexValidation"
+          class="regex-input"
+        />
+        <n-space>
+          <n-checkbox v-model:checked="global">
+            <span :title="$t('tools.regex-tester.flagGlobalTitle')">{{ $t('tools.regex-tester.flagGlobal') }} (<code>g</code>)</span>
+          </n-checkbox>
+          <n-checkbox v-model:checked="ignoreCase">
+            <span :title="$t('tools.regex-tester.flagIgnoreCaseTitle')">{{ $t('tools.regex-tester.flagIgnoreCase') }} (<code>i</code>)</span>
+          </n-checkbox>
+          <n-checkbox v-model:checked="multiline">
+            <span :title="$t('tools.regex-tester.flagMultilineTitle')">{{ $t('tools.regex-tester.flagMultiline') }}(<code>m</code>)</span>
+          </n-checkbox>
+          <n-checkbox v-model:checked="dotAll">
+            <span :title="$t('tools.regex-tester.flagDotAllTitle')">{{ $t('tools.regex-tester.flagDotAll') }}(<code>s</code>)</span>
+          </n-checkbox>
+          <n-checkbox v-model:checked="unicode">
+            <span :title="$t('tools.regex-tester.flagUnicodeTitle')">{{ $t('tools.regex-tester.flagUnicode') }}(<code>u</code>)</span>
+          </n-checkbox>
+          <n-checkbox v-model:checked="unicodeSets">
+            <span :title="$t('tools.regex-tester.flagUnicodeSetsTitle')">{{ $t('tools.regex-tester.flagUnicodeSets') }} (<code>v</code>)</span>
+          </n-checkbox>
+        </n-space>
 
-      <c-input-text
-        v-model:value="text"
-        :label="$t('tools.regex-tester.textLabel')"
-        :placeholder="$t('tools.regex-tester.textPlaceholder')"
-        multiline
-        rows="5"
-      />
-    </c-card>
+        <n-divider />
 
-    <c-card :title="$t('tools.regex-tester.matchesTitle')" mb-1 mt-3>
-      <n-table v-if="results?.length > 0">
-        <thead>
-          <tr>
-            <th scope="col">
-              {{ $t('tools.regex-tester.indexHeader') }}
-            </th>
-            <th scope="col">
-              {{ $t('tools.regex-tester.valueHeader') }}
-            </th>
-            <th scope="col">
-              {{ $t('tools.regex-tester.capturesHeader') }}
-            </th>
-            <th scope="col">
-              {{ $t('tools.regex-tester.groupsHeader') }}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="match of results" :key="match.index">
-            <td>{{ match.index }}</td>
-            <td>{{ match.value }}</td>
-            <td>
-              <ul>
-                <li v-for="capture in match.captures" :key="capture.name">
-                  "{{ capture.name }}" = {{ capture.value }} [{{ capture.start }} - {{ capture.end }}]
-                </li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li v-for="group in match.groups" :key="group.name">
-                  "{{ group.name }}" = {{ group.value }} [{{ group.start }} - {{ group.end }}]
-                </li>
-              </ul>
-            </td>
-          </tr>
-        </tbody>
-      </n-table>
-      <c-alert v-else>
-        {{ $t('tools.regex-tester.noMatch') }}
-      </c-alert>
-    </c-card>
+        <c-input-text
+          v-model:value="text"
+          :label="$t('tools.regex-tester.textLabel')"
+          :placeholder="$t('tools.regex-tester.textPlaceholder')"
+          multiline
+          rows="10"
+        />
+      </c-card>
 
-    <c-card :title="$t('tools.regex-tester.sampleTitle')" mt-3>
-      <pre style="white-space: pre-wrap; word-break: break-all;">{{ sample }}</pre>
-    </c-card>
+      <c-card :title="$t('tools.regex-tester.matchesTitle')">
+        <n-table v-if="results?.length > 0">
+          <thead>
+            <tr>
+              <th scope="col">
+                {{ $t('tools.regex-tester.indexHeader') }}
+              </th>
+              <th scope="col">
+                {{ $t('tools.regex-tester.valueHeader') }}
+              </th>
+              <th scope="col">
+                {{ $t('tools.regex-tester.capturesHeader') }}
+              </th>
+              <th scope="col">
+                {{ $t('tools.regex-tester.groupsHeader') }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="match of results" :key="match.index">
+              <td>{{ match.index }}</td>
+              <td>{{ match.value }}</td>
+              <td>
+                <ul>
+                  <li v-for="capture in match.captures" :key="capture.name">
+                    "{{ capture.name }}" = {{ capture.value }} [{{ capture.start }} - {{ capture.end }}]
+                  </li>
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  <li v-for="group in match.groups" :key="group.name">
+                    "{{ group.name }}" = {{ group.value }} [{{ group.start }} - {{ group.end }}]
+                  </li>
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </n-table>
+        <c-alert v-else>
+          {{ $t('tools.regex-tester.noMatch') }}
+        </c-alert>
+      </c-card>
 
-    <c-card :title="$t('tools.regex-tester.diagramTitle')" style="overflow-x: scroll;" mt-3>
-      <shadow-root ref="visualizerSVG">
+      <c-card :title="$t('tools.regex-tester.diagramTitle')" style="overflow-x: scroll;">
+        <shadow-root ref="visualizerSVG">
 &#xa0;
-      </shadow-root>
-    </c-card>
+        </shadow-root>
+      </c-card>
+    </section>
   </div>
 </template>
+
+<style scoped>
+.regex-tester-root {
+  position: relative;
+  width: min(1180px, 100%);
+  margin: 0 auto;
+    padding-left: 360px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+.regex-tester-panel {
+  max-width: 880px;
+  min-width: 880px;
+}
+
+.regex-memo-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 320px;
+  transform: translateX(-10px);
+}
+
+.regex-memo-panel > c-card,
+.regex-memo-panel > c-card > div {
+  width: 100%;
+}
+
+.regex-tester-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 760px;
+  flex: 0 0 760px;
+}
+
+.quick-patterns {
+  margin: 0.75rem 0;
+}
+
+.quick-patterns-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+::v-deep(.quick-pattern-btn) {
+  background-color: rgba(56, 132, 255, 0.06);
+  border-radius: 18px;
+  color: inherit;
+  border: 1px solid rgba(56, 132, 255, 0.2);
+}
+
+::v-deep(.quick-pattern-btn--alt) {
+  background-color: rgba(39, 176, 102, 0.08);
+  border-color: rgba(39, 176, 102, 0.25);
+}
+
+@media (max-width: 960px) {
+  .regex-tester-root {
+    padding-left: 0;
+  }
+
+  .regex-memo-panel {
+    position: static;
+    transform: none;
+    width: 100%;
+  }
+
+.regex-tester-panel {
+    width: 100%;
+  }
+}
+
+.regex-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+::v-deep(.regex-input .n-input) {
+  width: 100% !important;
+  box-sizing: border-box;
+}
+
+@media (max-width: 960px) {
+  .regex-tester-panel {
+    min-width: unset;
+  }
+}
+</style>

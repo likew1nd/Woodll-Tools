@@ -79,7 +79,7 @@ tools:
     uncategorized: '无分类'
 
   password-strength-analyser:
-    title: 密码强度分析仪
+    title: 密码强度分析器
     description: 使用此密码强度分析器和破解时间估计工具来发现密码的强度。
     inputPlaceholder: 输入密码...
     crackDurationLabel: 暴力破解该密码所需时间
@@ -294,7 +294,7 @@ tools:
     placeholderName: 例如：red
     unknown: 未知
   bcrypt:
-    title: 加密
+    title: Bcrypt 密码哈希
     description: 使用bcrypt对文本字符串进行哈希和比较。Bcrypt是一个基于Blowfish密码的密码哈希函数。
     hashTitle: 哈希
     inputLabel: 你的字符串：
@@ -355,7 +355,7 @@ tools:
       serverError: 5xx 服务器错误
 
   sql-prettify:
-    title: SQL 美化和格式化
+    title: SQL 美化/格式化
     description: 在线格式化和美化您的 SQL 查询（它支持各种 SQL 方言）。
     dialectLabel: 方言
     keywordCaseLabel: 关键字大小写
@@ -425,7 +425,7 @@ tools:
     copied: slug 已复制到剪贴板
 
   encryption:
-    title: 加密/解密文本
+    title: AES 加密/解密文本
     description: 使用加密算法（如AES、TripleDES、Rabbit或RC4）加密和解密文本明文。
     encryptTitle: 加密
     decryptTitle: 解密
@@ -450,7 +450,7 @@ tools:
     copied: 端口已复制到剪贴板
 
   yaml-prettify:
-    title: YAML美化和格式化
+    title: YAML 美化/格式化
     description: 将YAML字符串修饰为友好的可读格式。
     sortKeys: 排序键：
     indentSize: 缩进大小：
@@ -508,7 +508,7 @@ tools:
     copied: HMAC 已复制到剪贴板
 
   bip39-generator:
-    title: BIP39密码生成器
+    title: BIP39 密码生成器
     description: 从现有或随机助记符生成BIP39密码短语，或从密码短语获取助记符。
     languageLabel: 语言：
     languageEnglish: 英语
@@ -572,7 +572,7 @@ tools:
     outputLabel: 转换后的数据
 
   base64-string-converter:
-    title: Base64 字符串编码/解码
+    title: Base64 编码/解码
     description: 将字符串编码和解码为其 Base64 格式表示形式即可。
     stringToBase64Title: 字符串转 Base64
     encodeUrlSafe: URL 安全编码
@@ -607,7 +607,7 @@ tools:
     resultLabel: 结果
 
   json-to-yaml-converter:
-    title: JSON到YAML转换器
+    title: JSON 转 YAML
     description: 在线转换将JSON转换为YAML。
     inputLabel: 你的 JSON
     inputPlaceholder: 在此粘贴 JSON...
@@ -615,7 +615,7 @@ tools:
     invalidJson: 提供的 JSON 无效。
 
   url-parser:
-    title: Url分析器
+    title: Url 分析器
     description: 解析url字符串以获取所有不同的部分（协议、来源、参数、端口、用户名密码…）
     inputLabel: 需要解析的 URL：
     inputPlaceholder: 输入要解析的 URL...
@@ -711,7 +711,7 @@ tools:
     mockingcase: 交错大小写：
 
   html-entities:
-    title: 转义html实体
+    title: 转义 Html 实体
     description: 转义或unescape html实体（将<、>、&、“和\'替换为其html版本）
     escapeTitle: 转义 HTML 实体
     unescapeTitle: 反转义 HTML 实体
@@ -728,7 +728,7 @@ tools:
     unescapedCopied: 已复制反转义结果
 
   json-prettify:
-    title: JSON美化和格式化
+    title: JSON 美化/格式化
     description: 将JSON字符串修饰为友好的可读格式。
     sortKeys: 排序键：
     indentSize: 缩进大小：
@@ -748,7 +748,7 @@ tools:
     errorTitle: 以下错误发生了
 
   mac-address-lookup:
-    title: MAC地址查找
+    title: MAC 地址查找
     description: 通过设备的MAC地址查找设备的供应商和制造商。
     inputLabel: MAC 地址：
     inputPlaceholder: 输入 MAC 地址
@@ -758,7 +758,7 @@ tools:
     copied: 供应商信息已复制到剪贴板
 
   mime-types:
-    title: mime类型
+    title: Mime 类型转换
     description: 将mime类型转换为扩展，反之亦然。
     mimeToExtensionTitle: MIME 类型转扩展名
     mimeToExtensionSubtitle: 查看某个 MIME 类型对应的文件扩展名
@@ -773,7 +773,7 @@ tools:
     tableExtensions: 扩展名
 
   toml-to-json:
-    title: TOML 到 JSON
+    title: TOML 转 JSON
     description: 解析TOML并将其转换为JSON。
     inputLabel: 你的 TOML
     inputPlaceholder: 在此粘贴 TOML...
@@ -843,12 +843,12 @@ tools:
     copied: 规范化邮箱已复制到剪贴板
     parseError: 无法解析邮箱：{email}
   regex-tester:
-    title: 正则表达式测试器
+    title: 正则表达式
     description: 测试正则表达式并查看匹配结果。
     regexTitle: 正则
     regexLabel: 要测试的正则：
     regexPlaceholder: 输入要测试的正则
-    cheatsheet: 查看正则表达式速查表
+    cheatsheet: 正则表达式速查表
     flagGlobalTitle: 全局搜索
     flagGlobal: 全局搜索
     flagIgnoreCaseTitle: 不区分大小写搜索
@@ -861,6 +861,7 @@ tools:
     flagUnicode: Unicode
     flagUnicodeSetsTitle: u 模式的增强版，支持更多 Unicode 特性
     flagUnicodeSets: Unicode 集合
+    quickPatternsTitle: 常用正则
     textLabel: 要匹配的文本：
     textPlaceholder: 输入要匹配的文本
     matchesTitle: 匹配结果
@@ -869,7 +870,6 @@ tools:
     capturesHeader: 捕获
     groupsHeader: 分组
     noMatch: 无匹配
-    sampleTitle: 示例匹配文本
     diagramTitle: 正则图示
     invalidRegex: 无效正则：{error}
 
@@ -896,7 +896,7 @@ tools:
     public: 其他 (o)
 
   rsa-key-pair-generator:
-    title: RSA密钥对生成器
+    title: Rsa 密钥对生成器
     description: 生成新的随机RSA私钥和公钥pem证书。
     bitsLabel: 位数：
     bitsError: 位数应为 256 到 16384 之间，且必须是 8 的倍数
@@ -905,7 +905,7 @@ tools:
     privateKey: 私钥
 
   html-wysiwyg-editor:
-    title: HTML所见即所得编辑器
+    title: HTML 编辑器
     description: 在线HTML编辑器具有功能丰富的所见即所得编辑器，立即获得内容的源代码。
     defaultHtml: '<h1>你好！</h1><p>欢迎使用这个 HTML 所见即所得编辑器</p>'
     bold: 加粗
@@ -926,7 +926,7 @@ tools:
     redo: 重做
 
   yaml-to-toml:
-    title: YAML 到 TOML
+    title: YAML 转 TOML
     description: 解析YAML并将其转换为TOML。
     inputLabel: 你的 YAML
     inputPlaceholder: 在此粘贴 YAML...
@@ -973,7 +973,7 @@ tools:
     invalidJwt: 无效的 JWT
 
   date-converter:
-    title: 日期时间戳转换
+    title: 时间戳转换器
     description: 将日期和时间转换为各种不同的格式
     inputPlaceholder: 输入日期字符串...
     selectPlaceholder: 选择一个格式
@@ -1025,7 +1025,7 @@ tools:
       PAGER: 寻呼
 
   ipv4-subnet-calculator:
-    title: IPv4子网计算器
+    title: IPv4 子网计算器
     description: 解析IPv4 CIDR块，并获取有关子网络的所有所需信息。
     inputLabel: IPv4 地址/CIDR
     inputPlaceholder: 输入 IPv4 CIDR，例如 192.168.0.1/24
@@ -1091,7 +1091,7 @@ tools:
     unknown: 未知
 
   pdf-signature-checker:
-    title: PDF签名检查器
+    title: PDF 签名检查器
     description: '验证PDF文件的签名。签名的PDF文件包含一个或多个签名，可用于确定文件的内容在签名后是否已被更改。'
     uploadTitle: 拖拽 PDF 文件到这里，或点击选择文件
     noSignatures: 提供的文件中未找到签名。
@@ -1161,7 +1161,7 @@ tools:
     customPlaceholder: Base {base} 结果...
 
   yaml-to-json-converter:
-    title: YAML到JSON转换器
+    title: YAML 转 JSON
     description: 使用此在线转换器将YAML转换为JSON。
     inputLabel: 你的 YAML
     inputPlaceholder: 在此粘贴 YAML...
@@ -1185,7 +1185,7 @@ tools:
     invalidUuid: UUID 无效
 
   ipv4-address-converter:
-    title: Ipv4地址转换器
+    title: IPv4 地址转换器
     description: 在ipv6中，将ip地址转换为十进制、二进制、十六进制或事件
     inputLabel: IPv4 地址
     inputPlaceholder: 输入 IPv4 地址...
@@ -1207,7 +1207,7 @@ tools:
     bytesLabel: 字节大小
 
   text-to-nato-alphabet:
-    title: 文本转北约字母表
+    title: 文本 转 北约字母表
     description: 将文本转换为北约拼音字母以进行口头传播。
     inputLabel: 输入要转换为北约音标的文本
     inputPlaceholder: 输入文本...
@@ -1398,7 +1398,7 @@ tools:
         placeholder: 所属系列...
 
   text-to-unicode:
-    title: 文本转 Unicode
+    title: 文本 转 Unicode
     description: 解析文本并将其转换为 unicode，反之亦然
     textToUnicodeTitle: 文本转 Unicode
     unicodeToTextTitle: Unicode 转文本
@@ -1416,7 +1416,7 @@ tools:
     textCopied: 文本已复制到剪贴板
 
   ipv4-range-expander:
-    title: IPv4范围扩展器
+    title: IPv4 范围扩展器
     description: 给定起始和结束IPv4地址，此工具使用其CIDR表示法计算有效的IPv4网络。
     startAddressLabel: 起始地址
     startAddressPlaceholder: 起始 IPv4 地址...
@@ -1440,7 +1440,7 @@ tools:
     description: 比较两个文本并查看它们之间的差异。
 
   otp-generator:
-    title: OTP代码生成器
+    title: OTP 代码生成器
     description: 为多因素身份验证生成和验证基于时间的OTP（一次性密码）。
   otp-code-generator-and-validator:
     title: OTP 代码生成与校验
@@ -1470,7 +1470,7 @@ tools:
     copyNext: 复制下一个 OTP
 
   url-encoder:
-    title: 编码/解码url格式的字符串
+    title: Url 编码/解码
     description: 编码为url编码格式（也称为“百分比编码”）或从中解码。
     encodeTitle: 编码
     decodeTitle: 解码
@@ -1488,7 +1488,7 @@ tools:
     decodedCopied: 已复制解码结果
 
   text-to-binary:
-    title: 文本到 ASCII 二进制
+    title: 文本 转 ASCII 二进制
     description: 将文本转换为其 ASCII 二进制表示形式，反之亦然。
     textToBinaryTitle: 文本转 ASCII 二进制
     binaryToTextTitle: ASCII 二进制转文本
