@@ -350,9 +350,200 @@ tools:
     category:
       informational: 1xx 信息响应
       success: 2xx 成功
-      redirection: 3xx 重定向
-      clientError: 4xx 客户端错误
-      serverError: 5xx 服务器错误
+    redirection: 3xx 重定向
+    clientError: 4xx 客户端错误
+    serverError: 5xx 服务器错误
+
+    codes:
+      '100':
+        name: 继续
+        description: 等待客户端发送请求体。
+      '101':
+        name: 切换协议
+        description: 服务器已同意切换协议。
+      '102':
+        name: 处理中
+        description: 服务器正在处理请求，但尚未提供响应。
+      '103':
+        name: 初步提示
+        description: 服务器在最终 HTTP 消息之前返回一些响应头。
+      '200':
+        name: 成功
+        description: HTTP 请求成功的标准响应。
+      '201':
+        name: 已创建
+        description: 请求已完成，并创建了新的资源。
+      '202':
+        name: 已接受
+        description: 请求已被接受处理，但处理尚未完成。
+      '203':
+        name: 非权威信息
+        description: 请求成功，但原始内容已被中间代理修改。
+      '204':
+        name: 无内容
+        description: 服务器成功处理请求，不返回任何内容。
+      '205':
+        name: 重置内容
+        description: 服务器指示重新初始化发送该请求的文档视图。
+      '206':
+        name: 部分内容
+        description: 由于客户端发送了 Range 头，服务器仅提供部分资源。
+      '207':
+        name: 多状态
+        description: 后续的消息体是 XML，可包含多个独立的响应码。
+      '208':
+        name: 已报告
+        description: DAV 绑定成员已在前一个多状态响应中列举。
+      '226':
+        name: IM 已使用
+        description: 服务器完成了资源请求，响应表示结果。
+      '300':
+        name: 多种选择
+        description: 表示客户端可选多个资源选项。
+      '301':
+        name: 永久移动
+        description: 此请求及今后请求都应使用指定 URI。
+      '302':
+        name: 已找到
+        description: 重定向到另一 URL；反映行业实践与标准的差异。
+      '303':
+        name: 查看其它
+        description: 可通过 GET 在其他 URI 获取请求响应。
+      '304':
+        name: 未修改
+        description: 表示资源自请求头指定版本以来未被修改。
+      '305':
+        name: 使用代理
+        description: 资源只能通过代理访问，响应中提供地址。
+      '306':
+        name: 切换代理
+        description: 已废弃，原意为“后续请求应使用指定代理”。
+      '307':
+        name: 临时重定向
+        description: 请求应用另一个 URI 重试，但将来仍用原始 URI。
+      '308':
+        name: 永久重定向
+        description: 该请求及所有后续请求都应改用其他 URI。
+      '400':
+        name: 错误请求
+        description: 由于明显的客户端错误，服务器无法或不愿处理请求。
+      '401':
+        name: 未授权
+        description: 类似 403，但针对需要认证且失败或尚未提供认证的情况。
+      '402':
+        name: 需要付款
+        description: 保留以供将来使用，曾计划用于数字现金或微支付。
+      '403':
+        name: 禁止访问
+        description: 请求有效，但服务器拒绝执行操作，可能因权限不足。
+      '404':
+        name: 未找到
+        description: 找不到请求的资源，但今后可能可用。
+      '405':
+        name: 方法不被允许
+        description: 请求的方法不适用于目标资源。
+      '406':
+        name: 不可接受
+        description: 资源只能生成与请求 Accept 头不兼容的内容。
+      '407':
+        name: 需要代理认证
+        description: 客户端必须先与代理进行身份验证。
+      '408':
+        name: 请求超时
+        description: 服务器等待请求时发生超时。
+      '409':
+        name: 冲突
+        description: 请求因（如编辑）冲突而无法处理。
+      '410':
+        name: 已删除
+        description: 请求的资源已经不可用，且不会再出现。
+      '411':
+        name: 需要长度
+        description: 请求未提供内容长度，而资源对此有要求。
+      '412':
+        name: 前提条件失败
+        description: 服务器未满足请求方设定的某个先决条件。
+      '413':
+        name: 请求实体过大
+        description: 请求尺寸超出服务器愿意或有能力处理的范围。
+      '414':
+        name: URI 太长
+        description: 提供的 URI 太长，服务器无法处理。
+      '415':
+        name: 不支持的媒体类型
+        description: 请求实体采用的媒体类型不受服务器支持。
+      '416':
+        name: 范围无法满足
+        description: 客户端请求的文件区段暂时无法提供。
+      '417':
+        name: 期望失败
+        description: 服务器无法满足 Expect 请求头的要求。
+      '418':
+        name: 我是茶壶
+        description: 服务器拒绝以茶壶方式煮咖啡（彩蛋）。
+      '421':
+        name: 错误路由请求
+        description: 请求发送至无法产生响应的服务器。
+      '422':
+        name: 无法处理的实体
+        description: 请求格式正确，但因语义错误无法执行。
+      '423':
+        name: 已锁定
+        description: 正在访问的资源已被锁定。
+      '424':
+        name: 依赖失败
+        description: 由于先前请求失败，当前请求也失败。
+      '425':
+        name: 过早
+        description: 服务器不愿冒处理可能被重放的请求的风险。
+      '426':
+        name: 需要升级
+        description: 客户端应切换到其他协议，例如 TLS/1.0。
+      '428':
+        name: 需要前置条件
+        description: 源服务器要求请求为条件请求。
+      '429':
+        name: 请求过多
+        description: 用户在短时间内发送过多请求。
+      '431':
+        name: 请求头字段过大
+        description: 某个或全部请求头字段过大，服务器拒绝处理。
+      '451':
+        name: 法律原因不可用
+        description: 服务器收到法律要求，必须拒绝访问该资源。
+      '500':
+        name: 服务器内部错误
+        description: 出现意外状况且没有更具体消息时返回的通用错误。
+      '501':
+        name: 未实现
+        description: 服务器无法识别请求方法或无法完成请求。
+      '502':
+        name: 错误网关
+        description: 服务器作为网关或代理时从上游收到无效响应。
+      '503':
+        name: 服务不可用
+        description: 服务器当前不可用（可能过载或维护中）。
+      '504':
+        name: 网关超时
+        description: 服务器作为网关或代理未能及时从上游获取响应。
+      '505':
+        name: 不支持的 HTTP 版本
+        description: 服务器不支持请求中使用的 HTTP 版本。
+      '506':
+        name: 变体也在协商
+        description: 请求的透明内容协商导致循环引用。
+      '507':
+        name: 存储空间不足
+        description: 服务器无法存储完成请求所需的表示。
+      '508':
+        name: 检测到循环
+        description: 服务器在处理请求时检测到无限循环。
+      '510':
+        name: 未扩展
+        description: 服务器要求对请求进行更多扩展才能完成。
+      '511':
+        name: 需要网络认证
+        description: 客户端需认证以获取网络访问权限。
 
   sql-prettify:
     title: SQL 美化/格式化

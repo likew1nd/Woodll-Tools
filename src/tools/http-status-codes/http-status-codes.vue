@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { codesByCategories } from './http-status-codes.constants';
 import { useFuzzySearch } from '@/composable/fuzzySearch';
+import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
 
@@ -33,6 +34,22 @@ const codesByCategoryFiltered = computed(() => {
 
   return [{ category: t('tools.http-status-codes.searchResults'), codes: searchResult.value }];
 });
+
+const translationNamespace = 'tools.http-status-codes.codes';
+
+function translateCodeField(code: number, field: 'name' | 'description', fallback: string) {
+  const key = `${translationNamespace}.${code}.${field}`;
+  const translated = t(key);
+  return translated === key ? fallback : translated;
+}
+
+function getCodeName(code: number, fallback: string) {
+  return translateCodeField(code, 'name', fallback);
+}
+
+function getCodeDescription(code: number, fallback: string) {
+  return translateCodeField(code, 'description', fallback);
+}
 </script>
 
 <template>
@@ -50,10 +67,10 @@ const codesByCategoryFiltered = computed(() => {
 
       <c-card v-for="{ code, description, name, type } of codes" :key="code" mb-2>
         <div text-lg font-bold>
-          {{ code }} {{ name }}
+          {{ code }} {{ getCodeName(code, name) }}
         </div>
         <div op-70>
-          {{ description }} {{ type !== 'HTTP' ? $t('tools.http-status-codes.forType', { type }) : '' }}
+          {{ getCodeDescription(code, description) }} {{ type !== 'HTTP' ? $t('tools.http-status-codes.forType', { type }) : '' }}
         </div>
       </c-card>
     </div>
