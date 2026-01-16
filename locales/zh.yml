@@ -998,6 +998,10 @@ tools:
     paragraphsLabel: 段落数
     sentencesLabel: 每段句子数
     wordsLabel: 每句单词数
+    languageLabel: 文本语言
+    languageOptions:
+      english: 英文
+      chinese: 中文
     startWithLabel: 以 Lorem ipsum 开头？
     asHtmlLabel: 以 HTML 输出？
     outputPlaceholder: 你的 Lorem ipsum...

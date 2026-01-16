@@ -177,14 +177,88 @@ const vocabulary = [
   'volutpat',
   'vulputate',
 ];
+const chineseVocabulary = [
+  '快速',
+  '的',
+  '棕色',
+  '狐狸',
+  '跳过',
+  '懒',
+  '狗',
+  '在',
+  '河',
+  '边',
+  '玩耍',
+  '阳光',
+  '照耀',
+  '花',
+  '草',
+  '风',
+  '吹拂',
+  '山',
+  '水',
+  '清澈',
+  '桥',
+  '村',
+  '故事',
+  '欢笑',
+  '朋友',
+  '家',
+  '夜',
+  '明月',
+  '星空',
+  '灯火',
+  '城市',
+  '繁华',
+  '书',
+  '诗',
+  '梦想',
+  '希望',
+  '旅途',
+  '思念',
+  '心',
+  '情',
+  '微笑',
+  '温暖',
+  '雨',
+  '滴',
+  '记忆',
+  '画面',
+  '流动',
+  '繁花',
+  '似锦',
+  '翩翩',
+  '舞',
+  '韵',
+  '悠扬',
+  '琴',
+  '音',
+  '梧桐',
+  '叶',
+  '飘落',
+  '暖',
+  '春',
+  '夏',
+  '秋',
+  '冬',
+  '沉思',
+];
 const firstSentence = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+const firstSentenceZh = '快速的棕色狐狸跳过懒狗。';
 
-function generateSentence(length: number) {
+type Language = 'en' | 'zh';
+
+function generateSentence(length: number, language: Language) {
+  const baseVocabulary = language === 'zh' ? chineseVocabulary : vocabulary;
   const sentence = Array.from({ length })
-    .map(() => randFromArray(vocabulary))
-    .join(' ');
+    .map(() => randFromArray(baseVocabulary));
 
-  return `${sentence.charAt(0).toUpperCase() + sentence.slice(1)}.`;
+  if (language === 'zh') {
+    return `${sentence.join('')}。`;
+  }
+
+  const sentenceText = sentence.join(' ');
+  return `${sentenceText.charAt(0).toUpperCase() + sentenceText.slice(1)}.`;
 }
 
 export function generateLoremIpsum({
@@ -193,19 +267,21 @@ export function generateLoremIpsum({
   wordCount = 10,
   startWithLoremIpsum = true,
   asHTML = false,
+  language = 'en',
 }: {
   paragraphCount?: number
   sentencePerParagraph?: number
   wordCount?: number
   startWithLoremIpsum?: boolean
   asHTML?: boolean
+  language?: Language
 }) {
   const paragraphs = Array.from({ length: paragraphCount }).map(() =>
-    Array.from({ length: sentencePerParagraph }).map(() => generateSentence(wordCount)),
+    Array.from({ length: sentencePerParagraph }).map(() => generateSentence(wordCount, language)),
   );
 
   if (startWithLoremIpsum) {
-    paragraphs[0][0] = firstSentence;
+    paragraphs[0][0] = language === 'zh' ? firstSentenceZh : firstSentence;
   }
 
   if (asHTML) {

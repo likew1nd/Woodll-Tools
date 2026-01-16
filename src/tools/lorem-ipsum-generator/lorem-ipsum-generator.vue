@@ -11,6 +11,7 @@ const sentences = ref([3, 8]);
 const words = ref([8, 15]);
 const startWithLoremIpsum = ref(true);
 const asHTML = ref(false);
+const language = ref<'en' | 'zh'>('en');
 
 const [loremIpsumText, refreshLoremIpsum] = computedRefreshable(() =>
   generateLoremIpsum({
@@ -19,6 +20,7 @@ const [loremIpsumText, refreshLoremIpsum] = computedRefreshable(() =>
     sentencePerParagraph: randIntFromInterval(sentences.value[0], sentences.value[1]),
     wordCount: randIntFromInterval(words.value[0], words.value[1]),
     startWithLoremIpsum: startWithLoremIpsum.value,
+    language: language.value,
   }),
 );
 
@@ -35,6 +37,12 @@ const { copy } = useCopy({ source: loremIpsumText, text: t('tools.lorem-ipsum-ge
     </n-form-item>
     <n-form-item :label="t('tools.lorem-ipsum-generator.wordsLabel')" :show-feedback="false" label-width="200" label-placement="left">
       <n-slider v-model:value="words" range :step="1" :min="1" :max="50" />
+    </n-form-item>
+    <n-form-item :label="t('tools.lorem-ipsum-generator.languageLabel')" :show-feedback="false" label-width="200" label-placement="left">
+      <n-radio-group v-model:value="language" size="small">
+        <n-radio value="en">{{ t('tools.lorem-ipsum-generator.languageOptions.english') }}</n-radio>
+        <n-radio value="zh">{{ t('tools.lorem-ipsum-generator.languageOptions.chinese') }}</n-radio>
+      </n-radio-group>
     </n-form-item>
     <n-form-item :label="t('tools.lorem-ipsum-generator.startWithLabel')" :show-feedback="false" label-width="200" label-placement="left">
       <n-switch v-model:value="startWithLoremIpsum" />
