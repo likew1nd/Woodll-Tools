@@ -77,6 +77,7 @@ declare module '@vue/runtime-core' {
     EmojiCard: typeof import('./src/tools/emoji-picker/emoji-card.vue')['default']
     EmojiGrid: typeof import('./src/tools/emoji-picker/emoji-grid.vue')['default']
     EmojiPicker: typeof import('./src/tools/emoji-picker/emoji-picker.vue')['default']
+    EncodingConversion: typeof import('./src/tools/encoding-conversion/encoding-conversion.vue')['default']
     Encryption: typeof import('./src/tools/encryption/encryption.vue')['default']
     EtaCalculator: typeof import('./src/tools/eta-calculator/eta-calculator.vue')['default']
     FavoriteButton: typeof import('./src/components/FavoriteButton.vue')['default']
