@@ -900,6 +900,35 @@ tools:
     sentencecase: 句子式：
     snakecase: 下划线：
     mockingcase: 交错大小写：
+  encoding-conversion:
+    title: 编码转换
+    description: 输入文本后自动显示常见编码、URL 和 MD5 的结果
+    inputTitle: 文本输入
+    inputLabel: 待转换文本
+    inputPlaceholder: 输入要转换的字符串
+    urlEncodeGbk: URL 编码（GBK）
+    urlDecodeGbk: URL 解码（GBK）
+    urlEncodeUtf8: URL 编码（UTF-8）
+    urlDecodeUtf8: URL 解码（UTF-8）
+    base64Encode: BASE64 编码
+    base64Decode: BASE64 解码
+    base64EncodeGbk: BASE64 编码（GBK）
+    base64DecodeGbk: BASE64 解码（GBK）
+    ansiToUsc2: ANSI 转 UCS2
+    usc2ToAnsi: UCS2 转 ANSI
+    ansiToUnicode: ANSI 转 Unicode
+    unicodeToAnsi: Unicode 转 ANSI
+    gb2312ToUtf8: GB2312 转 UTF-8
+    utf8ToGb2312: UTF-8 转 GB2312
+    md5: 取 MD5 值
+    md5FileLabel: 文件 MD5
+    md5FileUploadTitle: 上传文件获取 MD5
+    tabs:
+      url: URL 编码
+      base64: BASE64
+      text: 文本转换
+      others: 其他
+      md5File: 文件 MD5
 
   html-entities:
     title: 转义 Html 实体
