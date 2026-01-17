@@ -189,6 +189,7 @@ function formatDateUsingFormatter(formatter: (date: Date) => string, date?: Date
       label-width="150px"
       label-position="left"
       label-align="right"
+      rows="1"
       :value="formatDateUsingFormatter(fromDate, normalizedDate)"
       :placeholder="$t('tools.date-converter.invalidDatePlaceholder')"
       :test-id="name"

@@ -63,6 +63,9 @@ ui:
     title: 拖拽文件到这里，或点击选择文件
     or: 或
     browse: 浏览文件
+  copy:
+    default: 复制到剪贴板
+    copied: 已复制
 tools:
   categories:
     favorite-tools: '我的收藏'
@@ -122,7 +125,7 @@ tools:
     errorMessage: 当前设置导致出错。
     outputLabel: ASCII 艺术文本：
   token-generator:
-    title: Token 生成器
+    title: 密码生成器
     description: 使用您想要的字符、大写或小写字母、数字和/或符号生成随机字符串。
 
     uppercase: '大写 (ABC...)'
@@ -235,7 +238,7 @@ tools:
     download: 下载二维码
 
   keycode-info:
-    title: Keycode 信息
+    title: KEYCODE 信息
     description: 查找任何按下的键的javascript键代码、代码、位置和修饰符。
     keyLabel: 按键：
     keyPlaceholder: 按键名称...
@@ -546,7 +549,7 @@ tools:
         description: 客户端需认证以获取网络访问权限。
 
   sql-prettify:
-    title: SQL 美化/格式化
+    title: SQL 格式化
     description: 在线格式化和美化您的 SQL 查询（它支持各种 SQL 方言）。
     dialectLabel: 方言
     keywordCaseLabel: 关键字大小写
@@ -606,7 +609,7 @@ tools:
     description: Git是一种去中心化的版本管理软件。使用此备忘单，您可以快速访问最常见的git命令.
 
   slugify-string:
-    title: 打乱字符串
+    title: URL 路径转换
     description: 确保字符串 url、文件名和 id 安全。
     inputLabel: 需要转换的字符串
     inputPlaceholder: 输入字符串（如：My file path）
@@ -616,7 +619,7 @@ tools:
     copied: slug 已复制到剪贴板
 
   encryption:
-    title: AES 加密/解密文本
+    title: AES 加密/解密
     description: 使用加密算法（如AES、TripleDES、Rabbit或RC4）加密和解密文本明文。
     encryptTitle: 加密
     decryptTitle: 解密
@@ -641,7 +644,7 @@ tools:
     copied: 端口已复制到剪贴板
 
   yaml-prettify:
-    title: YAML 美化/格式化
+    title: YAML 格式化
     description: 将YAML字符串修饰为友好的可读格式。
     sortKeys: 排序键：
     indentSize: 缩进大小：
@@ -927,9 +930,9 @@ tools:
       url: URL 编码
       base64: BASE64
       text: 文本转换
+      hash: 哈希
       others: 其他
       md5File: 文件 MD5
-
   html-entities:
     title: 转义 Html 实体
     description: 转义或unescape html实体（将<、>、&、“和\'替换为其html版本）
@@ -948,7 +951,7 @@ tools:
     unescapedCopied: 已复制反转义结果
 
   json-prettify:
-    title: JSON 美化/格式化
+    title: JSON 格式化
     description: 将JSON字符串修饰为友好的可读格式。
     sortKeys: 排序键：
     indentSize: 缩进大小：
@@ -978,7 +981,7 @@ tools:
     copied: 供应商信息已复制到剪贴板
 
   mime-types:
-    title: Mime 类型转换
+    title: MIME 类型转换
     description: 将mime类型转换为扩展，反之亦然。
     mimeToExtensionTitle: MIME 类型转扩展名
     mimeToExtensionSubtitle: 查看某个 MIME 类型对应的文件扩展名
@@ -1188,7 +1191,7 @@ tools:
     onlyDifferences: 仅显示差异
     sameJson: 提供的 JSON 完全一致
   jwt-parser:
-    title: JWT 解析器
+    title: JSON Jwt解析
     description: 解析和解码JSON Web Token（jwt）并显示其内容。
     inputLabel: 要解码的 JWT
     inputPlaceholder: 在此粘贴 token...

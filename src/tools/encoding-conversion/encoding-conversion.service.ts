@@ -204,3 +204,15 @@ export function md5(value: string) {
 
   return CryptoJS.MD5(value).toString(CryptoJS.enc.Hex).toUpperCase();
 }
+
+export function bufferToWordArray(buffer: Buffer) {
+  return CryptoJS.lib.WordArray.create(new Uint8Array(buffer) as any);
+}
+
+export function textToWordArray(value: string, encoding: 'utf8' | 'gbk' = 'utf8') {
+  const buffer = encoding === 'gbk'
+    ? iconv.encode(value, 'gbk')
+    : Buffer.from(value, 'utf8');
+
+  return bufferToWordArray(buffer);
+}

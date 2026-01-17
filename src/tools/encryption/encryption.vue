@@ -18,65 +18,94 @@ const [decryptOutput, decryptError] = computedCatch(() => algos[decryptAlgo.valu
   defaultValue: '',
   defaultErrorMessage: t('tools.encryption.decryptErrorMessage'),
 });
+const activeTab = ref<'加密' | '解密'>('加密');
 </script>
 
 <template>
-  <c-card :title="$t('tools.encryption.encryptTitle')">
-    <div flex gap-3>
-      <c-input-text
-        v-model:value="cypherInput"
-        :label="$t('tools.encryption.inputLabel')"
-        :placeholder="$t('tools.encryption.inputPlaceholder')"
-        rows="4"
-        multiline raw-text monospace autosize flex-1
-      />
-      <div flex flex-1 flex-col gap-2>
-        <c-input-text v-model:value="cypherSecret" :label="$t('tools.encryption.secretKeyLabel')" clearable raw-text />
+  <n-tabs v-model:value="activeTab" type="line">
+    <n-tab-pane
+      name="加密"
+      :title="$t('tools.encryption.encryptTitle')"
+    >
+      <c-card>
+        <div flex gap-3>
+          <c-input-text
+            v-model:value="cypherInput"
+            :label="$t('tools.encryption.inputLabel')"
+            :placeholder="$t('tools.encryption.inputPlaceholder')"
+            rows="10"
+            multiline
+            raw-text
+            monospace
+            autosize
+            flex-1
+          />
+          <div flex flex-1 flex-col gap-2>
+            <c-input-text v-model:value="cypherSecret" :label="$t('tools.encryption.secretKeyLabel')" clearable raw-text />
 
-        <c-select
-          v-model:value="cypherAlgo"
-          :label="$t('tools.encryption.algorithmLabel')"
-          :options="Object.keys(algos).map((label) => ({ label, value: label }))"
+            <c-select
+              v-model:value="cypherAlgo"
+              :label="$t('tools.encryption.algorithmLabel')"
+              :options="Object.keys(algos).map((label) => ({ label, value: label }))"
+            />
+          </div>
+        </div>
+        <c-input-text
+          :label="$t('tools.encryption.outputLabel')"
+          :value="cypherOutput"
+          rows="10"
+          :placeholder="$t('tools.encryption.outputPlaceholder')"
+          multiline
+          monospace
+          readonly
+          autosize
+          mt-5
         />
-      </div>
-    </div>
-    <c-input-text
-      :label="$t('tools.encryption.outputLabel')"
-      :value="cypherOutput"
-      rows="3"
-      :placeholder="$t('tools.encryption.outputPlaceholder')"
-      multiline monospace readonly autosize mt-5
-    />
-  </c-card>
-  <c-card :title="$t('tools.encryption.decryptTitle')">
-    <div flex gap-3>
-      <c-input-text
-        v-model:value="decryptInput"
-        :label="$t('tools.encryption.decryptInputLabel')"
-        :placeholder="$t('tools.encryption.decryptInputPlaceholder')"
-        rows="4"
-        multiline raw-text monospace autosize flex-1
-      />
-      <div flex flex-1 flex-col gap-2>
-        <c-input-text v-model:value="decryptSecret" :label="$t('tools.encryption.secretKeyLabel')" clearable raw-text />
+      </c-card>
+    </n-tab-pane>
+    <n-tab-pane
+      name="解密"
+      :title="$t('tools.encryption.decryptTitle')"
+    >
+      <c-card>
+        <div flex gap-3>
+          <c-input-text
+            v-model:value="decryptInput"
+            :label="$t('tools.encryption.decryptInputLabel')"
+            :placeholder="$t('tools.encryption.decryptInputPlaceholder')"
+            rows="10"
+            multiline
+            raw-text
+            monospace
+            autosize
+            flex-1
+          />
+          <div flex flex-1 flex-col gap-2>
+            <c-input-text v-model:value="decryptSecret" :label="$t('tools.encryption.secretKeyLabel')" clearable raw-text />
 
-        <c-select
-          v-model:value="decryptAlgo"
-          :label="$t('tools.encryption.algorithmLabel')"
-          :options="Object.keys(algos).map((label) => ({ label, value: label }))"
+            <c-select
+              v-model:value="decryptAlgo"
+              :label="$t('tools.encryption.algorithmLabel')"
+              :options="Object.keys(algos).map((label) => ({ label, value: label }))"
+            />
+          </div>
+        </div>
+        <c-alert v-if="decryptError" type="error" mt-12 :title="$t('tools.encryption.decryptErrorTitle')">
+          {{ decryptError }}
+        </c-alert>
+        <c-input-text
+          v-else
+          :label="$t('tools.encryption.decryptOutputLabel')"
+          :value="decryptOutput"
+          :placeholder="$t('tools.encryption.decryptOutputPlaceholder')"
+          rows="10"
+          multiline
+          monospace
+          readonly
+          autosize
+          mt-5
         />
-      </div>
-    </div>
-    <c-alert v-if="decryptError" type="error" mt-12 :title="$t('tools.encryption.decryptErrorTitle')">
-      {{ decryptError }}
-    </c-alert>
-    <c-input-text
-      v-else
-      :label="$t('tools.encryption.decryptOutputLabel')"
-      :value="decryptOutput"
-      :placeholder="$t('tools.encryption.decryptOutputPlaceholder')"
-      rows="3"
-      multiline monospace readonly autosize mt-5
-    />
-  </c-card>
+      </c-card>
+    </n-tab-pane>
+  </n-tabs>
 </template>

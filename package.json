@@ -23,7 +23,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && NODE_OPTIONS=--max_old_space_size=4096 vite build",
+    "build": "vue-tsc --noEmit && cross-env NODE_OPTIONS=--max_old_space_size=4096 vite build",
     "postbuild": "node scripts/postbuild-copy-php.mjs",
     "preview": "vite preview --port 5050",
     "admin:server": "node server/index.js",
@@ -139,6 +139,7 @@
     "@vue/test-utils": "^2.3.2",
     "@vue/tsconfig": "^0.4.0",
     "consola": "^3.0.2",
+    "cross-env": "^10.1.0",
     "eslint": "^8.47.0",
     "hygen": "^6.2.11",
     "jsdom": "^22.0.0",

@@ -275,10 +275,10 @@ const activeTab = ref(tabGroups.value[0]?.key ?? 'url');
     <c-input-text
       v-model:value="sourceText"
       :placeholder="$t('tools.encoding-conversion.inputPlaceholder')"
-      multiline
+
       :rows="defaultRows"
-      raw-text
-      autofocus
+
+      raw-text autofocus multiline
     />
 
     <div my-16px divider />
