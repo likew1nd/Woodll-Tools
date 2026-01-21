@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 
-import CryptoJS from 'crypto-js';
+import type { lib } from 'crypto-js';
+import CryptoJS, { MD5, RIPEMD160, SHA1, SHA224, SHA256, SHA3, SHA384, SHA512, enc } from 'crypto-js';
 
 import {
   ansiToUcs2,
@@ -12,6 +13,7 @@ import {
   base64EncodeGbk,
   gb2312ToUtf8,
   md5,
+  textToWordArray,
   unicodeToAnsi,
   urlDecodeGbk,
   urlDecodeUtf8,
@@ -29,8 +31,10 @@ import {
   useDownloadFileFromBase64Refs,
 } from '@/composable/downloadBase64';
 import { useValidation } from '@/composable/validation';
+import { useQueryParam } from '@/composable/queryParams';
 import { withDefaultOnError } from '@/utils/defaults';
 import { isValidBase64 } from '@/utils/base64';
+import { convertHexToBin } from '../hash-text/hash-text.service';
 
 const { t } = useI18n();
 
@@ -40,6 +44,85 @@ const smallRows = 3;
 const sourceText = ref('123 ABC 你好');
 
 const transformValue = (handler: (value: string) => string) => withDefaultOnError(() => handler(sourceText.value), '');
+
+const algos = {
+  MD5,
+  SHA1,
+  SHA256,
+  SHA224,
+  SHA512,
+  SHA384,
+  SHA3,
+  RIPEMD160,
+} as const;
+
+type AlgoNames = keyof typeof algos;
+type Encoding = keyof typeof enc | 'Bin' | 'Raw' | 'RawGbk';
+const algoNames = Object.keys(algos) as AlgoNames[];
+const hashEncoding = useQueryParam<Encoding>({ defaultValue: 'Hex', name: 'encoding' });
+
+const hashEncodingOptions = [
+  {
+    label: '原始输出 (UTF-8)',
+    value: 'Raw',
+  },
+  {
+    label: '原始输出 (GBK)',
+    value: 'RawGbk',
+  },
+  {
+    label: '二进制 (Base 2)',
+    value: 'Bin',
+  },
+  {
+    label: '十六进制 (Base 16)',
+    value: 'Hex',
+  },
+  {
+    label: 'Base64 (Base 64)',
+    value: 'Base64',
+  },
+  {
+    label: 'Base64 (Url)',
+    value: 'Base64url',
+  },
+];
+
+function formatHashWithEncoding(words: lib.WordArray, encoding: Encoding) {
+  if (encoding === 'Bin') {
+    return convertHexToBin(words.toString(enc.Hex));
+  }
+
+  if (encoding === 'Raw' || encoding === 'RawGbk') {
+    return words.toString(enc.Hex).toUpperCase();
+  }
+
+  return words.toString(enc[encoding]);
+}
+
+const mapPairs = (items: Array<{ label: string; value: string }>) => {
+  const pairs: Array<Array<{ label: string; value: string }>> = [];
+  for (let i = 0; i < items.length; i += 2) {
+    pairs.push(items.slice(i, i + 2));
+  }
+  return pairs;
+};
+
+const hashResults = computed(() =>
+  algoNames.map(algo => ({
+    algo,
+    label: algo,
+    value: withDefaultOnError(() => {
+      const input = hashEncoding.value === 'RawGbk'
+        ? textToWordArray(sourceText.value, 'gbk')
+        : sourceText.value;
+      const words = algos[algo](input as string | lib.WordArray);
+      return formatHashWithEncoding(words, hashEncoding.value);
+    }, ''),
+  })),
+);
+
+const hashResultPairs = computed(() => mapPairs(hashResults.value));
 
 const tabGroups = computed(() => [
   {
@@ -135,6 +218,11 @@ const tabGroups = computed(() => [
         },
       ],
     ],
+  },
+  {
+    key: 'Hash',
+    label: t('tools.encoding-conversion.tabs.hash'),
+    pairs: [],
   },
   {
     key: '文件 转 Md5',
@@ -290,7 +378,51 @@ const activeTab = ref(tabGroups.value[0]?.key ?? 'url');
         :name="tab.key"
         :title="tab.label"
       >
-        <template v-if="tab.key !== '文件 转 Md5'">
+        <template v-if="tab.key === 'Hash'">
+          <div flex flex-col gap-4>
+            <c-select
+              v-model:value="hashEncoding"
+              mb-2
+              :label="$t('tools.hash-text.encodingLabel')"
+              :options="hashEncodingOptions"
+            />
+            <div grid gap-3>
+              <div
+                v-for="(pair, index) in hashResultPairs"
+                :key="`hash-pair-${index}`"
+                grid
+                gap-3
+                sm:grid-cols-2
+              >
+                <InputCopyable
+                  v-for="result in pair"
+                  :key="result.label"
+                  :value="result.value"
+                  :label="result.label"
+                  class="w-full"
+                  :rows="smallRows"
+                  mb-1
+                  readonly
+                />
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <template v-else-if="tab.key === '文件 转 Md5'">
+          <div flex flex-col gap-4>
+            <c-file-upload :title="t('tools.encoding-conversion.md5FileUploadTitle')" @file-upload="onMd5FileUpload" />
+            <InputCopyable
+              :value="md5FileValue"
+              :label="md5FileLabel"
+              class="w-full"
+              :rows="smallRows"
+              mb-1
+            />
+          </div>
+        </template>
+
+        <template v-else>
           <div grid gap-3>
             <div
               v-for="(pair, index) in tab.pairs"
@@ -316,19 +448,6 @@ const activeTab = ref(tabGroups.value[0]?.key ?? 'url');
                 mb-1
               />
             </div>
-          </div>
-        </template>
-
-        <template v-else>
-          <div flex flex-col gap-4>
-            <c-file-upload :title="t('tools.encoding-conversion.md5FileUploadTitle')" @file-upload="onMd5FileUpload" />
-            <InputCopyable
-              :value="md5FileValue"
-              :label="md5FileLabel"
-              class="w-full"
-              :rows="smallRows"
-              mb-1
-            />
           </div>
         </template>
       </n-tab-pane>

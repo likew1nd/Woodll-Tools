@@ -4,10 +4,10 @@ import { useCopy } from '@/composable/copy';
 const props = withDefaults(defineProps<{ value?: string }>(), { value: '' });
 const { value } = toRefs(props);
 
-const initialText = 'Copy to clipboard';
+const initialText = '复制到剪贴板';
 
 const { copy, isJustCopied } = useCopy({ source: value, createToast: false });
-const tooltipText = computed(() => isJustCopied.value ? 'Copied!' : initialText);
+const tooltipText = computed(() => isJustCopied.value ? '已复制！' : initialText);
 </script>
 
 <template>

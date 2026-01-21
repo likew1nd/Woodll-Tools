@@ -1,4 +1,6 @@
 ﻿<script setup lang="ts">
+import { IconDragDrop } from '@tabler/icons-vue';
+import Draggable from 'vuedraggable';
 import { UNCATEGORIZED_ID, buildDefaultToolsConfig, normalizeToolsConfig } from '@/tools/tools-config';
 import type { CategoryConfig, ToolConfig, ToolsConfig } from '@/tools/tools-config';
 import { toolsWithCategory } from '@/tools';
@@ -68,6 +70,25 @@ const sortedCategories = computed(() =>
 
 const activeCategoryId = ref(sortedCategories.value[0]?.id ?? UNCATEGORIZED_ID);
 const newCategoryName = ref('');
+
+const toolRows = ref<typeof toolMeta.value>([]);
+
+function rebuildToolRows() {
+  toolRows.value = toolMeta.value
+    .filter(tool => getToolCategoryId(tool.path, tool.defaultCategoryId) === activeCategoryId.value)
+    .sort((a, b) =>
+      getToolConfig(a.path, a.defaultCategoryId).order - getToolConfig(b.path, b.defaultCategoryId).order,
+    );
+}
+
+watch(
+  [
+    activeCategoryId,
+    () => config.value.tools.map(tool => `${tool.path}:${tool.categoryId}:${tool.order}`).join('|'),
+  ],
+  rebuildToolRows,
+  { immediate: true },
+);
 
 function getToolConfig(path: string, defaultCategoryId: string): ToolConfig {
   let toolConfig = config.value.tools.find(tool => tool.path === path);
@@ -192,6 +213,13 @@ function deleteCategory(categoryId: string) {
   if (activeCategoryId.value === categoryId) {
     activeCategoryId.value = UNCATEGORIZED_ID;
   }
+}
+
+function updateToolOrder() {
+  toolRows.value.forEach((tool, index) => {
+    const configItem = getToolConfig(tool.path, tool.defaultCategoryId);
+    configItem.order = index;
+  });
 }
 
 async function loadConfig() {
@@ -514,6 +542,7 @@ onMounted(loadSiteConfig);
                 <n-table :bordered="true" :single-line="false" class="tools-table">
                   <thead>
                     <tr>
+                      <th style="width: 40px;" />
                       <th>
                         工具
                       </th>
@@ -531,8 +560,19 @@ onMounted(loadSiteConfig);
                       </th>
                     </tr>
                   </thead>
-                  <tbody>
-                    <tr v-for="tool in filteredTools" :key="tool.path">
+                  <Draggable
+                    v-model="toolRows"
+                    item-key="path"
+                    tag="tbody"
+                    ghost-class="ghost-tools-draggable"
+                    handle=".drag-handle"
+                    @end="updateToolOrder"
+                  >
+                    <template #item="{ element: tool }">
+                      <tr>
+                        <td>
+                          <n-icon class="drag-handle" :component="IconDragDrop" size="18" />
+                        </td>
                       <td>
                         <div>
                           {{ tool.title }}
@@ -556,8 +596,9 @@ onMounted(loadSiteConfig);
                       <td>
                         <n-switch v-model:value="getToolConfig(tool.path, tool.defaultCategoryId).enabled" />
                       </td>
-                    </tr>
-                  </tbody>
+                      </tr>
+                    </template>
+                  </Draggable>
                 </n-table>
               </n-tab-pane>
             </n-tabs>
@@ -652,6 +693,16 @@ onMounted(loadSiteConfig);
 
 .tools-table {
   margin-top: 12px;
+}
+
+.drag-handle {
+  cursor: grab;
+  color: #888;
+}
+
+.ghost-tools-draggable {
+  opacity: 0.6;
+  background-color: rgba(148, 163, 184, 0.2);
 }
 
 .category-actions {

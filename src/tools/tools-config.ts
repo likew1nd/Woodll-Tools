@@ -1,4 +1,5 @@
 import { toolsByCategory } from './index';
+import seedConfig from './tools-config.seed.json';
 
 export type ToolsConfig = {
   version: 1
@@ -38,12 +39,13 @@ export function buildDefaultToolsConfig(): ToolsConfig {
       enabled: true,
       featured: false,
     })));
-
-  return {
+  const generated = {
     version: 1,
     categories,
     tools,
   };
+
+  return normalizeToolsConfig(seedConfig as ToolsConfig, generated);
 }
 
 export function normalizeToolsConfig(config: ToolsConfig | null | undefined, defaults = buildDefaultToolsConfig()): ToolsConfig {

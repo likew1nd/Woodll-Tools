@@ -1,0 +1,668 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "id": "Crypto",
+      "order": 0,
+      "enabled": true
+    },
+    {
+      "id": "Converter",
+      "order": 10,
+      "enabled": true
+    },
+    {
+      "id": "Web",
+      "order": 4,
+      "enabled": true
+    },
+    {
+      "id": "Images and videos",
+      "order": 8,
+      "enabled": true
+    },
+    {
+      "id": "Development",
+      "order": 3,
+      "enabled": true
+    },
+    {
+      "id": "Network",
+      "order": 6,
+      "enabled": true
+    },
+    {
+      "id": "Math",
+      "order": 7,
+      "enabled": true
+    },
+    {
+      "id": "Measurement",
+      "order": 12,
+      "enabled": true
+    },
+    {
+      "id": "Text",
+      "order": 2,
+      "enabled": true
+    },
+    {
+      "id": "Data",
+      "order": 9,
+      "enabled": false
+    },
+    {
+      "id": "Json",
+      "order": 1,
+      "enabled": true
+    },
+    {
+      "id": "uncategorized",
+      "order": 11,
+      "enabled": true
+    },
+    {
+      "id": "不显示",
+      "order": 11,
+      "enabled": false
+    }
+  ],
+  "tools": [
+    {
+      "path": "/token-generator",
+      "categoryId": "Crypto",
+      "order": 2,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/bcrypt",
+      "categoryId": "Crypto",
+      "order": 4,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/uuid-generator",
+      "categoryId": "Crypto",
+      "order": 5,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/ulid-generator",
+      "categoryId": "Crypto",
+      "order": 6,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/encryption",
+      "categoryId": "Crypto",
+      "order": 0,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/bip39-generator",
+      "categoryId": "Crypto",
+      "order": 7,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/hmac-generator",
+      "categoryId": "Crypto",
+      "order": 8,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/rsa-key-pair-generator",
+      "categoryId": "Crypto",
+      "order": 1,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/password-strength-analyser",
+      "categoryId": "Crypto",
+      "order": 3,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/pdf-signature-checker",
+      "categoryId": "Images and videos",
+      "order": 4,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/date-converter",
+      "categoryId": "Text",
+      "order": 0,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/base-converter",
+      "categoryId": "Math",
+      "order": 5,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/roman-numeral-converter",
+      "categoryId": "Math",
+      "order": 0,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/color-converter",
+      "categoryId": "Web",
+      "order": 1,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/case-converter",
+      "categoryId": "Text",
+      "order": 7,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/text-to-nato-alphabet",
+      "categoryId": "Text",
+      "order": 9,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/text-to-binary",
+      "categoryId": "不显示",
+      "order": 7,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/text-to-unicode",
+      "categoryId": "不显示",
+      "order": 8,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/yaml-to-json-converter",
+      "categoryId": "Json",
+      "order": 11,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/yaml-to-toml",
+      "categoryId": "Json",
+      "order": 12,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/json-to-yaml-converter",
+      "categoryId": "Json",
+      "order": 7,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/json-to-toml",
+      "categoryId": "Json",
+      "order": 6,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/list-converter",
+      "categoryId": "Text",
+      "order": 3,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/toml-to-json",
+      "categoryId": "Json",
+      "order": 13,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/toml-to-yaml",
+      "categoryId": "Json",
+      "order": 14,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/xml-to-json",
+      "categoryId": "Json",
+      "order": 8,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/json-to-xml",
+      "categoryId": "Json",
+      "order": 5,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/markdown-to-html",
+      "categoryId": "Web",
+      "order": 4,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/encoding-conversion",
+      "categoryId": "Text",
+      "order": 1,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/url-encoder",
+      "categoryId": "不显示",
+      "order": 0,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/html-entities",
+      "categoryId": "Web",
+      "order": 6,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/url-parser",
+      "categoryId": "Web",
+      "order": 2,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/device-information",
+      "categoryId": "Web",
+      "order": 11,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/basic-auth-generator",
+      "categoryId": "Web",
+      "order": 8,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/og-meta-generator",
+      "categoryId": "Web",
+      "order": 7,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/otp-generator",
+      "categoryId": "Web",
+      "order": 9,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/mime-types",
+      "categoryId": "Web",
+      "order": 6,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/jwt-parser",
+      "categoryId": "Json",
+      "order": 1,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/keycode-info",
+      "categoryId": "Web",
+      "order": 10,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/slugify-string",
+      "categoryId": "Web",
+      "order": 3,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/html-wysiwyg-editor",
+      "categoryId": "Web",
+      "order": 0,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/user-agent-parser",
+      "categoryId": "Web",
+      "order": 13,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/http-status-codes",
+      "categoryId": "Web",
+      "order": 12,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/json-diff",
+      "categoryId": "Json",
+      "order": 0,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/safelink-decoder",
+      "categoryId": "Web",
+      "order": 5,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/qrcode-generator",
+      "categoryId": "Images and videos",
+      "order": 0,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/wifi-qrcode-generator",
+      "categoryId": "Images and videos",
+      "order": 1,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/svg-placeholder-generator",
+      "categoryId": "Images and videos",
+      "order": 2,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/camera-recorder",
+      "categoryId": "Images and videos",
+      "order": 3,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/png-to-ico",
+      "categoryId": "Images and videos",
+      "order": 5,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/git-memo",
+      "categoryId": "不显示",
+      "order": 0,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/random-port-generator",
+      "categoryId": "Development",
+      "order": 2,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/crontab-generator",
+      "categoryId": "Development",
+      "order": 4,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/json-prettify",
+      "categoryId": "Json",
+      "order": 2,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/json-minify",
+      "categoryId": "Json",
+      "order": 3,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/json-to-csv",
+      "categoryId": "Json",
+      "order": 4,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/sql-prettify",
+      "categoryId": "Json",
+      "order": 15,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/chmod-calculator",
+      "categoryId": "Development",
+      "order": 3,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/docker-run-to-docker-compose-converter",
+      "categoryId": "不显示",
+      "order": 8,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/xml-formatter",
+      "categoryId": "Json",
+      "order": 9,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/yaml-prettify",
+      "categoryId": "Json",
+      "order": 10,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/email-normalizer",
+      "categoryId": "Development",
+      "order": 1,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/regex-tester",
+      "categoryId": "Development",
+      "order": 0,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/ipv4-subnet-calculator",
+      "categoryId": "Network",
+      "order": 1,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/ipv4-address-converter",
+      "categoryId": "Network",
+      "order": 2,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/ipv4-range-expander",
+      "categoryId": "Network",
+      "order": 3,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/mac-address-lookup",
+      "categoryId": "Network",
+      "order": 4,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/mac-address-generator",
+      "categoryId": "Network",
+      "order": 5,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/ipv6-ula-generator",
+      "categoryId": "Network",
+      "order": 6,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/my-ip",
+      "categoryId": "Network",
+      "order": 0,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/math-evaluator",
+      "categoryId": "Math",
+      "order": 1,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/eta-calculator",
+      "categoryId": "Math",
+      "order": 3,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/percentage-calculator",
+      "categoryId": "Math",
+      "order": 6,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/chronometer",
+      "categoryId": "Math",
+      "order": 2,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/temperature-converter",
+      "categoryId": "Math",
+      "order": 4,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/benchmark-builder",
+      "categoryId": "Math",
+      "order": 7,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/lorem-ipsum-generator",
+      "categoryId": "Text",
+      "order": 5,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/text-statistics",
+      "categoryId": "Text",
+      "order": 4,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/emoji-picker",
+      "categoryId": "Text",
+      "order": 8,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/string-obfuscator",
+      "categoryId": "Text",
+      "order": 6,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/text-diff",
+      "categoryId": "Text",
+      "order": 2,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/numeronym-generator",
+      "categoryId": "Text",
+      "order": 10,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/ascii-text-drawer",
+      "categoryId": "Text",
+      "order": 11,
+      "enabled": false,
+      "featured": false
+    },
+    {
+      "path": "/phone-parser-and-formatter",
+      "categoryId": "Data",
+      "order": 0,
+      "enabled": true,
+      "featured": false
+    },
+    {
+      "path": "/iban-validator-and-parser",
+      "categoryId": "Data",
+      "order": 1,
+      "enabled": true,
+      "featured": false
+    }
+  ],
+  "updatedAt": "2026-01-18T08:46:40.460Z"
+}

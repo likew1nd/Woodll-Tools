@@ -45,6 +45,8 @@ const siderPosition = computed(() => (isSmallScreen.value ? 'absolute' : 'static
 :global(.menu-layout .n-layout-sider) {
   background: var(--app-sider-bg);
   border-right: 1px solid var(--app-border);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 :global(.menu-layout .n-layout-sider__content) {
@@ -62,6 +64,8 @@ const siderPosition = computed(() => (isSmallScreen.value ? 'absolute' : 'static
   background: var(--app-bg-elev);
   border-bottom: 1px solid var(--app-border);
   padding: 10px 22px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 .layout-body {
@@ -83,6 +87,8 @@ const siderPosition = computed(() => (isSmallScreen.value ? 'absolute' : 'static
     radial-gradient(980px 520px at 92% -10%, rgba(124, 92, 255, 0.38), transparent 70%),
     radial-gradient(760px 460px at 6% 0%, rgba(34, 211, 238, 0.28), transparent 65%),
     var(--app-content-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 
   ::v-deep(.n-layout-scroll-container) {
     padding: 26px;

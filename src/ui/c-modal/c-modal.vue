@@ -46,19 +46,23 @@ onClickOutside(modal, () => {
 </script>
 
 <template>
-  <transition>
-    <div v-if="isOpen" class="c-modal--overlay" fixed left-0 top-0 z-10 h-full w-full flex justify-center px-2 :class="{ 'items-center': centered }">
-      <div ref="modal" class="c-modal--container" v-bind="$attrs" max-w-xl w-full flex-grow rounded-md pa-24px>
-        <slot />
+  <teleport to="body">
+    <transition>
+      <div v-if="isOpen" class="c-modal--overlay" fixed inset-0 z-10 h-screen w-screen flex justify-center px-2 :class="{ 'items-center': centered }">
+        <div ref="modal" class="c-modal--container" v-bind="$attrs" max-w-xl w-full flex-grow rounded-md pa-24px>
+          <slot />
+        </div>
       </div>
-    </div>
-  </transition>
+    </transition>
+  </teleport>
 </template>
 
 <style scoped lang="less">
 .c-modal--overlay {
   background-color: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(6px);
+  width: 100vw;
+  height: 100vh;
 }
 
 .c-modal--container {

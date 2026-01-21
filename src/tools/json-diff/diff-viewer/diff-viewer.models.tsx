@@ -33,7 +33,7 @@ function LineDiffViewer({ diff, showKeys }: { diff: Difference; showKeys?: boole
   const valueToDisplay = status === 'removed' ? oldValue : value;
 
   return (
-    <li>
+    <li data-diff-status={status}>
       <span class={[status, 'result']}>
         {showKeys && (
           <>
@@ -52,7 +52,7 @@ function ComparisonViewer({ diff, showKeys }: { diff: Difference; showKeys?: boo
   const { value, key, oldValue } = diff;
 
   return (
-    <li class={'updated-line'}>
+    <li class={'updated-line'} data-diff-status={'updated'}>
       {showKeys && (
         <>
           <span class={'key'}>{key}</span>
@@ -81,7 +81,7 @@ function ChildrenViewer({
   const { children, key, status, type } = diff;
 
   return (
-    <li>
+    <li data-diff-status={status}>
       <div class={[type, status]} style={{ display: 'inline-block' }}>
         {showKeys && (
           <>

@@ -76,25 +76,30 @@ useHead(() => {
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 :root {
-  --app-bg: #f6f7fb;
-  --app-bg-elev: #ffffff;
-  --app-content-bg: #f6f7fb;
-  --app-sider-bg: #ffffff;
-  --app-text: #0f172a;
-  --app-text-muted: #64748b;
-  --app-border: rgba(148, 163, 184, 0.35);
-  --app-glow: rgba(99, 102, 241, 0.18);
+  --app-bg: #fdf2f8;
+  --app-bg-elev: rgba(255, 255, 255, 0.78);
+  --app-content-bg: rgba(255, 255, 255, 0.6);
+  --app-sider-bg: rgba(255, 255, 255, 0.7);
+  --app-text: #3b0a2a;
+  --app-text-muted: #6b3952;
+  --app-border: rgba(236, 72, 153, 0.28);
+  --app-glow: rgba(34, 211, 238, 0.3);
+  --app-accent-pink: #ec4899;
+  --app-accent-cyan: #22d3ee;
+  --app-accent-lime: #34d399;
+  --app-accent-primary: #ec4899;
 }
 
 .dark {
-  --app-bg: #0b0f15;
-  --app-bg-elev: #121627;
-  --app-content-bg: #0b0f15;
-  --app-sider-bg: #0f172a;
-  --app-text: #e2e8f0;
-  --app-text-muted: #9aa4b2;
-  --app-border: rgba(124, 92, 255, 0.28);
-  --app-glow: rgba(127, 43, 255, 0.32);
+  --app-bg: #0a0c16;
+  --app-bg-elev: rgba(18, 24, 38, 0.72);
+  --app-content-bg: rgba(15, 23, 42, 0.62);
+  --app-sider-bg: rgba(17, 24, 39, 0.7);
+  --app-text: #e6f6ff;
+  --app-text-muted: #9fb3c8;
+  --app-border: rgba(56, 189, 248, 0.32);
+  --app-glow: rgba(236, 72, 153, 0.4);
+  --app-accent-primary: #22d3ee;
 }
 
 body {
@@ -102,8 +107,24 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
-  background: var(--app-bg);
+  background:
+    radial-gradient(1100px 600px at 12% -15%, rgba(236, 72, 153, 0.28), transparent 60%),
+    radial-gradient(900px 520px at 85% -10%, rgba(34, 211, 238, 0.25), transparent 58%),
+    radial-gradient(800px 520px at 50% 110%, rgba(52, 211, 153, 0.2), transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.35)),
+    var(--app-bg);
+  background-attachment: fixed;
   color: var(--app-text);
+}
+
+.dark body {
+  background:
+    radial-gradient(900px 540px at 15% -20%, rgba(236, 72, 153, 0.35), transparent 60%),
+    radial-gradient(900px 540px at 85% -20%, rgba(34, 211, 238, 0.3), transparent 60%),
+    radial-gradient(800px 520px at 50% 120%, rgba(52, 211, 153, 0.25), transparent 60%),
+    linear-gradient(180deg, rgba(5, 8, 16, 0.9), rgba(10, 12, 22, 0.9)),
+    var(--app-bg);
+  background-attachment: fixed;
 }
 
 html {

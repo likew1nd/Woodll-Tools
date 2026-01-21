@@ -202,6 +202,39 @@ tools:
     recordingNotSupported: 你的浏览器不支持视频录制
     screenshot: 截图
     video: 视频
+  my-ip:
+    title: IPv4 查看本机IP
+    description: 查看当前网络的对外 IP，并尝试通过不同服务获取。
+    refresh: 刷新
+    loading: 正在获取...
+    unavailable: 暂无数据
+    errors:
+      noIpFound: 未找到 IP 地址
+      unknown: 获取失败
+    cards:
+      domestic: 从国内测试
+      domesticDesc: 使用国内服务接口获取
+      overseas: 从国外测试
+      overseasDesc: 使用国外服务接口获取
+      google: 从 Ip.sb 测试
+      googleDesc: 添加 Ip.sb 规则，测试你的分流 IP
+  png-to-ico:
+    title: PNG 转 ICO
+    description: 将 PNG 图片转换为 ICO 图标，支持多分辨率或单分辨率
+    uploadTitle: 上传 PNG
+    modeLabel: 生成模式
+    modeMulti: 多分辨率
+    modeSingle: 单分辨率
+    sizesLabel: 尺寸
+    singleSizeLabel: 单尺寸
+    generate: 生成 ICO
+    download: 下载 ICO
+    originalSize: 原图尺寸
+    previewPlaceholder: 请上传 PNG 预览
+    errors:
+      noImage: 请先上传 PNG 图片
+      noSize: 请至少选择一个尺寸
+      generateFailed: 生成失败，请重试
   qr-code-generator:
     title: 二维码生成器
     description: 将文本或链接生成二维码。
@@ -743,7 +776,7 @@ tools:
     invalidBase64: 无效的 Base64 字符串
     copied: Base64 已复制到剪贴板
   list-converter:
-    title: List 转换器
+    title: 文本处理器
     description: 该工具可以处理基于数组的数据，并将各种更改（转置、添加前缀和后缀、反向列表、排序列表、小写值、截断值）应用于每一行。
     trimItems: 去除列表项空白
     removeDuplicates: 移除重复项
@@ -1025,8 +1058,8 @@ tools:
     printPdf: 打印为 PDF
 
   lorem-ipsum-generator:
-    title: Lorem ipsum生成器
-    description: Lorem ipsum是一种占位符文本，通常用于演示文档或字体的视觉形式，而不依赖于有意义的内容
+    title: 乱文生成器
+    description: 乱文生成器是一种占位符文本，通常用于演示文档或字体的视觉形式，而不依赖于有意义的内容
     paragraphsLabel: 段落数
     sentencesLabel: 每段句子数
     wordsLabel: 每句单词数
@@ -1183,11 +1216,16 @@ tools:
   json-diff:
     title: JSON 差异比较
     description: 比较两个JSON对象并获得它们之间的差异。
-    leftLabel: 第一个 JSON
-    leftPlaceholder: 在此粘贴第一个 JSON...
-    rightLabel: 要对比的 JSON
-    rightPlaceholder: 在此粘贴要对比的 JSON...
+    leftLabel: JSON
+    leftPlaceholder: 在此粘贴 JSON...
+    rightLabel: JSON1
+    rightPlaceholder: 在此粘贴 JSON1...
+    resultLabel: 对比结果
+    format: 格式化
     invalidJson: JSON 格式无效
+    pathLabel: 路径
+    valueLabel: 值
+    rootPath: 根
     onlyDifferences: 仅显示差异
     sameJson: 提供的 JSON 完全一致
   jwt-parser:
