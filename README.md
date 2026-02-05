@@ -39,63 +39,13 @@
 
 上游项目更多说明请参考原仓库 README。
 
-## 快速开始
+## 部署（推荐：直接用发布包）
 
-### 安装依赖
+请从 **Releases** 下载已打包好的版本，解压后直接上传到服务器即可使用。
 
-```sh
-pnpm install
-```
+## 开发与自定义（可选）
 
-### 启动前端
-
-```sh
-pnpm run dev
-```
-
-默认地址：`http://localhost:5173/`（或控制台输出的端口）
-
-### 启动后台（管理 + SVG 生成）
-
-```sh
-pnpm run admin:server
-```
-
-默认地址：`http://localhost:3001/`
-
-## 管理后台
-
-- 访问：`/admin`
-- 默认账号：`admin`
-- 默认密码：`admin123`
-
-生产环境请通过环境变量覆盖：
-
-```sh
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=your-strong-password
-ADMIN_JWT_SECRET=your-secret
-```
-
-## 主要后端接口（Node）
-
-- `GET /api/tools-config` 工具配置
-- `PUT /api/tools-config` 更新工具配置
-- `GET /api/site-config` 站点配置
-- `PUT /api/site-config` 更新站点配置
-- `POST /api/vps-remaining-value/svg` 生成 SVG（响应 SVG 内容）
-- `POST /api/vps-remaining-value/svg/save` 生成并保存 SVG，返回可访问 URL
-
-## 构建
-
-```sh
-pnpm build
-```
-
-## 部署要点
-
-- 确保 `data/` 与 `data/uploads/` 可写
-- `admin:server` 建议放到反向代理后（如 Nginx）
+如需本地开发或自定义，请自行安装依赖并启动开发环境。
 
 ## License
 
