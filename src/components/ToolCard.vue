@@ -50,6 +50,8 @@ const theme = useThemeVars();
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  content-visibility: auto;
+  contain-intrinsic-size: 220px 220px;
 }
 
 .tool-card::before {
@@ -86,6 +88,17 @@ const theme = useThemeVars();
   background: rgba(18, 24, 38, 0.75);
   border-color: var(--app-border);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+}
+
+:global(.perf-mode) .tool-card {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+:global(.perf-mode) .tool-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.12);
 }
 
 :global(.dark) .tool-card:hover {

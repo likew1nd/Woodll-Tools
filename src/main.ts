@@ -7,6 +7,7 @@ import shadow from 'vue-shadow-dom';
 import { plausible } from './plugins/plausible.plugin';
 
 import 'virtual:uno.css';
+import './monaco.setup';
 
 import { naive } from './plugins/naive.plugin';
 
@@ -15,6 +16,10 @@ import router from './router';
 import { i18nPlugin } from './plugins/i18n.plugin';
 
 registerSW();
+
+if (import.meta.env.DEV) {
+  document.documentElement.classList.add('perf-mode');
+}
 
 const app = createApp(App);
 

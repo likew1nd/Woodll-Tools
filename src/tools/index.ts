@@ -86,6 +86,7 @@ import { tool as yamlViewer } from './yaml-viewer';
 import { tool as encodingConversion } from './encoding-conversion';
 import { tool as myIp } from './my-ip';
 import { tool as pngToIco } from './png-to-ico';
+import { tool as vpsRemainingValue } from './vps-remaining-value';
 
 export const toolsByCategory: ToolCategory[] = [
   {
@@ -165,7 +166,7 @@ export const toolsByCategory: ToolCategory[] = [
   },
   {
     name: 'Math',
-    components: [mathEvaluator, etaCalculator, percentageCalculator],
+    components: [mathEvaluator, etaCalculator, percentageCalculator, vpsRemainingValue],
   },
   {
     name: 'Measurement',

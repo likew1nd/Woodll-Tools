@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterView, useRoute } from 'vue-router';
-import { NGlobalStyle, NMessageProvider, NNotificationProvider, darkTheme } from 'naive-ui';
+import { NGlobalStyle, NMessageProvider, NNotificationProvider, darkTheme, zhCN, dateZhCN } from 'naive-ui';
 import { useHead } from '@vueuse/head';
 import { storeToRefs } from 'pinia';
 import { darkThemeOverrides, lightThemeOverrides } from './themes';
@@ -18,6 +18,8 @@ const { config: siteConfig, isLoaded: siteConfigLoaded } = storeToRefs(siteConfi
 
 const theme = computed(() => (styleStore.isDarkTheme ? darkTheme : null));
 const themeOverrides = computed(() => (styleStore.isDarkTheme ? darkThemeOverrides : lightThemeOverrides));
+const naiveLocale = zhCN;
+const naiveDateLocale = dateZhCN;
 
 const { locale } = useI18n();
 
@@ -60,7 +62,7 @@ useHead(() => {
 </script>
 
 <template>
-  <n-config-provider :theme="theme" :theme-overrides="themeOverrides">
+  <n-config-provider :theme="theme" :theme-overrides="themeOverrides" :locale="naiveLocale" :date-locale="naiveDateLocale">
     <NGlobalStyle />
     <NMessageProvider placement="bottom">
       <NNotificationProvider placement="bottom-right">
@@ -125,6 +127,22 @@ body {
     linear-gradient(180deg, rgba(5, 8, 16, 0.9), rgba(10, 12, 22, 0.9)),
     var(--app-bg);
   background-attachment: fixed;
+}
+
+.perf-mode body {
+  background:
+    radial-gradient(900px 520px at 20% -10%, rgba(236, 72, 153, 0.18), transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.4)),
+    var(--app-bg);
+  background-attachment: scroll;
+}
+
+.perf-mode.dark body {
+  background:
+    radial-gradient(900px 520px at 20% -10%, rgba(236, 72, 153, 0.2), transparent 60%),
+    linear-gradient(180deg, rgba(5, 8, 16, 0.85), rgba(10, 12, 22, 0.85)),
+    var(--app-bg);
+  background-attachment: scroll;
 }
 
 html {

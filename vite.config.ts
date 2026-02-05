@@ -17,6 +17,8 @@ import svgLoader from 'vite-svg-loader';
 import { configDefaults } from 'vitest/config';
 
 const baseUrl = process.env.BASE_URL ?? '/';
+const projectRoot = resolve(process.cwd());
+const srcDir = resolve(projectRoot, 'src');
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -99,15 +101,19 @@ export default defineConfig({
     Unocss(),
   ],
   base: baseUrl,
+  root: projectRoot,
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@': srcDir,
     },
   },
   define: {
     'import.meta.env.PACKAGE_VERSION': JSON.stringify(process.env.npm_package_version),
   },
   server: {
+    fs: {
+      allow: [projectRoot],
+    },
     proxy: {
       '/api': 'http://localhost:3001',
     },

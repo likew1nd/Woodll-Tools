@@ -72,6 +72,7 @@ tools:
     crypto: '加密'
     converter: '转换器'
     web: Web
+    json: 'JSON'
     images and videos: '图片和视频'
     development: '开发'
     network: '网络'
@@ -1703,6 +1704,50 @@ tools:
   text-diff:
     title: 文本比较
     description: 比较两个文本并查看它们之间的差异。
+
+  vps-remaining-value:
+    title: VPS 剩余价值计算器
+    description: 按剩余天数比例计算预付 VPS 的剩余价值。
+    tip: 请输入总价、开始/结束日期，系统会按天数比例计算剩余价值。
+    totalPrice: 续费金额
+    currencySymbol: 货币符号
+    decimalPlaces: 小数位数
+    payCurrency: 支付币种
+    settleCurrency: 结算币种
+    realtimeRate: 实时汇率（仅供参考）
+    appliedRate: 实际汇率（可修改）
+    premiumPercent: 溢价（%）
+    billingPeriod: 付费周期
+    rateLoading: 获取汇率中
+    rateError: 汇率获取失败
+    formTitle: 输入信息
+    resultTitle: 计算结果
+    valueAssessment: 价值评估
+    lowValue: 低价值
+    remainingTime: 剩余时间
+    untilDate: 到期于
+    days: 天
+    serviceActive: 服务有效中
+    serviceExpired: 服务已到期
+    copySvg: 复制分享代码
+    copySvgSuccess: 已复制分享代码到剪贴板
+    previewSvg: 查看图片
+    previewTitle: 图片预览
+    previewMissing: 暂无可预览的图片，请先复制生成
+    noResult: 请先填写有效数据并计算出结果
+    copySvgFailed: 复制失败，请重试
+    copySvgBackend: 复制失败：请确认后端已启动
+    copySvgPrompt: 复制 SVG
+    startDate: 开始日期
+    endDate: 到期时间
+    asOfDate: 交易日期
+    invalidRange: 结束日期必须晚于开始日期。
+    totalDays: 总天数
+    usedDays: 已使用天数
+    remainingDays: 剩余天数
+    remainingRatio: 剩余比例
+    remainingValue: 剩余价值
+    usedValue: 已使用价值
 
   otp-generator:
     title: OTP 代码生成器
