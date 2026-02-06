@@ -7,6 +7,7 @@ module.exports = {
 
   rules: {
     'curly': ['error', 'all'],
+    'semi': 'off',
     '@typescript-eslint/semi': ['error', 'always'],
     '@typescript-eslint/no-use-before-define': ['error', { allowNamedExports: true, functions: false }],
     'vue/no-empty-component-block': ['error'],
