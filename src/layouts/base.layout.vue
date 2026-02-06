@@ -81,7 +81,7 @@ const tools = computed<ToolCategory[]>(() => [
 
         <div class="footer">
           <div>
-            基于 <c-link target="_blank" rel="noopener" href="https://github.com/CorentinTh/it-tools/">
+            基于 <c-link target="_blank" rel="noopener" href="https://github.com/likew1nd/Woodll-Tools/">
               IT-Tools
             </c-link> 的二次开发<br>
             <template v-if="commitSha && commitSha.length > 0">
@@ -90,7 +90,7 @@ const tools = computed<ToolCategory[]>(() => [
                 target="_blank"
                 rel="noopener"
                 type="primary"
-                :href="`https://github.com/CorentinTh/it-tools/tree/${commitSha}`"
+                :href="`https://github.com/likew1nd/Woodll-Tools/tree/${commitSha}`"
               >
                 {{ commitSha }}
               </c-link>

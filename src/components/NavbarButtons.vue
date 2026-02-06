@@ -22,7 +22,7 @@ const IconMoonWrapped = wrapIcon(IconMoon);
     <c-button
       circle
       variant="text"
-      href="https://github.com/CorentinTh/it-tools"
+      href="https://github.com/likew1nd/Woodll-Tools/"
       target="_blank"
       rel="noopener noreferrer"
       :aria-label="$t('home.nav.githubRepository')"
