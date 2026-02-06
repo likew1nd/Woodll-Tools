@@ -4,11 +4,12 @@
 
 ## 预览
 
-![预览 1](./1.jpeg)
+![预览 1](./1.gif)
 
-![预览 2](./2.jpeg)
+## 特色功能
 
-![预览 3](./3.jpeg)
+![预览 2](./2.gif)
+
 
 ## 与原版 IT-Tools 的主要差异
 
@@ -53,7 +54,9 @@ location /api/ {
 
 ## Docker Compose 一键部署
 
-保存为 `docker-compose.yml`，然后执行 `docker compose up -d` 即可运行。
+先创建两个目录：`data` 和 `uploads`。
+
+然后保存为 `docker-compose.yml`，执行 `docker compose up -d` 即可运行。
 
 ```yaml
 version: "3.8"
@@ -64,9 +67,13 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./data:/var/www/html/data
-      - ./uploads:/var/www/html/uploads
+      - woodll-data:/var/www/html/data
+      - woodll-uploads:/var/www/html/uploads
     restart: unless-stopped
+
+volumes:
+  woodll-data:
+  woodll-uploads:
 ```
 
 ## 开发与自定义（可选）
