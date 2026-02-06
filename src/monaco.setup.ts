@@ -7,7 +7,7 @@ import HtmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
 import TsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
 
 interface MonacoEnvironment {
-  getWorker: (_moduleId: string, label: string) => Worker;
+  getWorker: (_moduleId: string, label: string) => Worker,
 }
 
 (globalThis as typeof globalThis & { MonacoEnvironment: MonacoEnvironment }).MonacoEnvironment = {
