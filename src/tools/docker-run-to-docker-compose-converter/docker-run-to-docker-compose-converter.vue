@@ -5,8 +5,6 @@ import { useDownloadFileFromBase64 } from '@/composable/downloadBase64';
 import { textToBase64 } from '@/utils/base64';
 import TextareaCopyable from '@/components/TextareaCopyable.vue';
 
-const { t } = useI18n();
-
 const dockerRun = ref(
   'docker run -p 80:80 -v /var/run/docker.sock:/tmp/docker.sock:ro --restart always --log-opt max-size=1g nginx',
 );

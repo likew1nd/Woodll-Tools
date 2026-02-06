@@ -4,11 +4,11 @@ import { useTemplateRefsList, useVModel } from '@vueuse/core';
 import { NInputNumber } from 'naive-ui';
 import { nextTick } from 'vue';
 
-const { t } = useI18n();
-
 const props = defineProps<{ values: (number | null)[] }>();
 
 const emit = defineEmits(['update:values']);
+
+const { t } = useI18n();
 
 const refs = useTemplateRefsList<typeof NInputNumber>();
 

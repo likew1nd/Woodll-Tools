@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { IconDragDrop } from '@tabler/icons-vue';
 import Draggable from 'vuedraggable';
 import { UNCATEGORIZED_ID, buildDefaultToolsConfig, normalizeToolsConfig } from '@/tools/tools-config';

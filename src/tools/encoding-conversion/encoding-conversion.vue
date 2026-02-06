@@ -363,10 +363,10 @@ const activeTab = ref(tabGroups.value[0]?.key ?? 'url');
     <c-input-text
       v-model:value="sourceText"
       :placeholder="$t('tools.encoding-conversion.inputPlaceholder')"
-
       :rows="defaultRows"
-
-      raw-text autofocus multiline
+      autofocus
+      multiline
+      raw-text
     />
 
     <div my-16px divider />
@@ -399,9 +399,9 @@ const activeTab = ref(tabGroups.value[0]?.key ?? 'url');
                   :key="result.label"
                   :value="result.value"
                   :label="result.label"
+                  mb-1
                   class="w-full"
                   :rows="smallRows"
-                  mb-1
                   readonly
                 />
               </div>
@@ -415,9 +415,9 @@ const activeTab = ref(tabGroups.value[0]?.key ?? 'url');
             <InputCopyable
               :value="md5FileValue"
               :label="md5FileLabel"
+              mb-1
               class="w-full"
               :rows="smallRows"
-              mb-1
             />
           </div>
         </template>
@@ -435,17 +435,17 @@ const activeTab = ref(tabGroups.value[0]?.key ?? 'url');
                 v-if="pair[0]"
                 :value="pair[0].value"
                 :label="pair[0].label"
+                mb-1
                 class="w-full"
                 :rows="smallRows"
-                mb-1
               />
               <InputCopyable
                 v-if="pair[1]"
                 :value="pair[1].value"
                 :label="pair[1].label"
+                mb-1
                 class="w-full"
                 :rows="smallRows"
-                mb-1
               />
             </div>
           </div>

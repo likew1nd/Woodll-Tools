@@ -5,8 +5,6 @@ import { useMediaRecorder } from './useMediaRecorder';
 
 interface Media { type: 'image' | 'video'; value: string; createdAt: Date }
 
-const { t } = useI18n();
-
 const {
   videoInputs: cameras,
   audioInputs: microphones,
