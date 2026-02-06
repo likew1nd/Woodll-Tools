@@ -80,7 +80,7 @@ const { searchResult } = useFuzzySearch({
         mx-auto max-w-600px
       >
         <template #prefix>
-          <icon-mdi-search mr-6px color-black op-70 dark:color-white />
+          <icon-mdi-search class="mr-6px color-black op-70 dark:color-white" />
         </template>
       </c-input-text>
     </div>

@@ -12,3 +12,11 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+declare module 'vue' {
+  interface ComponentCustomProps {
+    [key: string]: unknown
+  }
+}
+
+export {}

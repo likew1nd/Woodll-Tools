@@ -40,11 +40,11 @@ const ibanInfo = computed<CKeyValueListItems>(() => {
     },
     {
       label: t('tools.iban-validator-and-parser.countryCodeLabel'),
-      value: countryCode,
+      value: countryCode ?? undefined,
     },
     {
       label: t('tools.iban-validator-and-parser.bbanLabel'),
-      value: bban,
+      value: bban ?? undefined,
     },
     {
       label: t('tools.iban-validator-and-parser.friendlyFormatLabel'),
@@ -70,7 +70,7 @@ const ibanExamples = [
 
     <c-card :title="t('tools.iban-validator-and-parser.examplesTitle')" mt-5>
       <div v-for="iban in ibanExamples" :key="iban">
-        <c-text-copyable :value="iban" font-mono :displayed-value="friendlyFormatIBAN(iban)" />
+        <c-text-copyable :value="iban" font-mono :displayed-value="friendlyFormatIBAN(iban) ?? undefined" />
       </div>
     </c-card>
   </div>

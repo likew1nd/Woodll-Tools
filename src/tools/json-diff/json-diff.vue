@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import JSON5 from 'json5';
+import type { editor } from 'monaco-editor';
 
 import { isNotThrowing } from '@/utils/boolean';
 
@@ -13,7 +14,7 @@ const rightHasValue = computed(() => rawRightJson.value.trim().length > 0);
 const leftInvalid = computed(() => leftHasValue.value && !isNotThrowing(() => JSON5.parse(rawLeftJson.value)));
 const rightInvalid = computed(() => rightHasValue.value && !isNotThrowing(() => JSON5.parse(rawRightJson.value)));
 const hasInvalidJson = computed(() => leftInvalid.value || rightInvalid.value);
-const diffOptions = computed(() => ({
+const diffOptions = computed<editor.IDiffEditorOptions>(() => ({
   renderSideBySide: true,
   splitViewDefaultRatio: 0.5,
   wordWrap: 'off',
@@ -254,11 +255,11 @@ function parseJsonAst(text: string): JsonNode {
   return root;
 }
 
-function formatPath(segments: Array<string | number>) {
+function formatPath(segments: Array<string | number>): string {
   if (segments.length === 0) {
     return '';
   }
-  return segments.reduce((result, segment) => {
+  return segments.reduce<string>((result, segment) => {
     if (typeof segment === 'number') {
       return `${result}[${segment}]`;
     }
@@ -360,6 +361,33 @@ function updateSelection(side: 'left' | 'right', offset: number) {
     rightSelection.value = selection;
   }
 }
+
+interface CursorChangeEvent {
+  side: 'original' | 'modified'
+  offset: number
+}
+
+interface SplitRatioChangeEvent {
+  ratio: number
+}
+
+interface ContextMenuActionEvent {
+  actionId: string
+}
+
+function handleCursorChange({ side, offset }: CursorChangeEvent) {
+  updateSelection(side === 'original' ? 'left' : 'right', offset);
+}
+
+function handleSplitRatioChange({ ratio }: SplitRatioChangeEvent) {
+  splitRatio.value = ratio;
+}
+
+function handleContextMenuAction({ actionId }: ContextMenuActionEvent) {
+  if (actionId === 'custom.format') {
+    formatJson();
+  }
+}
 </script>
 
 <template>
@@ -389,9 +417,9 @@ function updateSelection(side: 'left' | 'right', offset: number) {
       language="json"
       :enable-format-action="true"
       :options="diffOptions"
-      @cursor-change="({ side, offset }) => updateSelection(side === 'original' ? 'left' : 'right', offset)"
-      @split-ratio-change="({ ratio }) => (splitRatio = ratio)"
-      @context-menu-action="({ actionId }) => actionId === 'custom.format' && formatJson()"
+      @cursor-change="handleCursorChange"
+      @split-ratio-change="handleSplitRatioChange"
+      @context-menu-action="handleContextMenuAction"
     />
     <div class="json-path-grid">
       <div>

@@ -14,7 +14,15 @@ const tableHeaders = computed(() => ({
   pemCertificate: t('tools.pdf-signature-checker.pemCertificate'),
 }));
 
-const certs = computed(() => signature.value.meta.certs.map((certificate, index) => ({
+type CertificateRow = SignatureInfo['meta']['certs'][number] & {
+  validityPeriod: {
+    notBefore: string
+    notAfter: string
+  }
+  certificateName: string
+};
+
+const certs = computed<CertificateRow[]>(() => signature.value.meta.certs.map((certificate, index) => ({
   ...certificate,
   validityPeriod: {
     notBefore: new Date(certificate.validityPeriod.notBefore).toLocaleString(),
@@ -23,6 +31,11 @@ const certs = computed(() => signature.value.meta.certs.map((certificate, index)
   certificateName: t('tools.pdf-signature-checker.certificateName', { index: index + 1 }),
 })),
 );
+
+const asValidityPeriod = (value: unknown) => value as CertificateRow['validityPeriod'];
+const asIssuedBy = (value: unknown) => value as CertificateRow['issuedBy'];
+const asIssuedTo = (value: unknown) => value as CertificateRow['issuedTo'];
+const asPem = (value: unknown) => value as CertificateRow['pemCertificate'];
 </script>
 
 <template>
@@ -32,10 +45,10 @@ const certs = computed(() => signature.value.meta.certs.map((certificate, index)
         <c-key-value-list
           :items="[{
             label: $t('tools.pdf-signature-checker.notBefore'),
-            value: value.notBefore,
+            value: asValidityPeriod(value).notBefore,
           }, {
             label: $t('tools.pdf-signature-checker.notAfter'),
-            value: value.notAfter,
+            value: asValidityPeriod(value).notAfter,
           }]"
         />
       </template>
@@ -44,22 +57,22 @@ const certs = computed(() => signature.value.meta.certs.map((certificate, index)
         <c-key-value-list
           :items="[{
             label: $t('tools.pdf-signature-checker.commonName'),
-            value: value.commonName,
+            value: asIssuedBy(value).commonName,
           }, {
             label: $t('tools.pdf-signature-checker.organizationName'),
-            value: value.organizationName,
+            value: asIssuedBy(value).organizationName,
           }, {
             label: $t('tools.pdf-signature-checker.countryName'),
-            value: value.countryName,
+            value: asIssuedBy(value).countryName,
           }, {
             label: $t('tools.pdf-signature-checker.localityName'),
-            value: value.localityName,
+            value: asIssuedBy(value).localityName,
           }, {
             label: $t('tools.pdf-signature-checker.organizationalUnitName'),
-            value: value.organizationalUnitName,
+            value: asIssuedBy(value).organizationalUnitName,
           }, {
             label: $t('tools.pdf-signature-checker.stateOrProvinceName'),
-            value: value.stateOrProvinceName,
+            value: asIssuedBy(value).stateOrProvinceName,
           }]"
         />
       </template>
@@ -68,31 +81,31 @@ const certs = computed(() => signature.value.meta.certs.map((certificate, index)
         <c-key-value-list
           :items="[{
             label: $t('tools.pdf-signature-checker.commonName'),
-            value: value.commonName,
+            value: asIssuedTo(value).commonName,
           }, {
             label: $t('tools.pdf-signature-checker.organizationName'),
-            value: value.organizationName,
+            value: asIssuedTo(value).organizationName,
           }, {
             label: $t('tools.pdf-signature-checker.countryName'),
-            value: value.countryName,
+            value: asIssuedTo(value).countryName,
           }, {
             label: $t('tools.pdf-signature-checker.localityName'),
-            value: value.localityName,
+            value: asIssuedTo(value).localityName,
           }, {
             label: $t('tools.pdf-signature-checker.organizationalUnitName'),
-            value: value.organizationalUnitName,
+            value: asIssuedTo(value).organizationalUnitName,
           }, {
             label: $t('tools.pdf-signature-checker.stateOrProvinceName'),
-            value: value.stateOrProvinceName,
+            value: asIssuedTo(value).stateOrProvinceName,
           }]"
         />
       </template>
 
       <template #pemCertificate="{ value }">
-        <c-modal-value :value="value" :label="$t('tools.pdf-signature-checker.viewPemCert')">
+        <c-modal-value :value="asPem(value)" :label="$t('tools.pdf-signature-checker.viewPemCert')">
           <template #value>
             <div break-all text-xs>
-              {{ value }}
+              {{ asPem(value) }}
             </div>
           </template>
         </c-modal-value>

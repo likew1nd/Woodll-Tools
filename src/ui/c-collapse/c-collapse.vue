@@ -8,7 +8,7 @@ const isCollapsed = ref(true);
 <template>
   <div>
     <div flex cursor-pointer items-center @click="isCollapsed = !isCollapsed">
-      <icon-mdi-triangle-down :class="{ 'transform-rotate--90': isCollapsed }" op-50 transition />
+      <icon-mdi-triangle-down class="op-50 transition" :class="{ 'transform-rotate--90': isCollapsed }" />
 
       <slot name="title">
         <span class="ml-2" font-bold>{{ title }}</span>

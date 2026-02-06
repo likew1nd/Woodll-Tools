@@ -2,8 +2,9 @@
 import { generateMeta } from '@it-tools/oggen';
 import _ from 'lodash';
 import { image, ogSchemas, twitter, website } from './og-schemas';
-import type { OGSchemaType, OGSchemaTypeElementSelect } from './OGSchemaType.type';
+import type { OGSchemaType, OGSchemaTypeElementInput, OGSchemaTypeElementInputMultiple, OGSchemaTypeElementSelect } from './OGSchemaType.type';
 import TextareaCopyable from '@/components/TextareaCopyable.vue';
+import type { CSelectOption } from '@/ui/c-select/c-select.types';
 
 // Since type guards do not work in template
 
@@ -48,24 +49,27 @@ interface OptionItem {
   children?: OptionItem[]
 }
 
-function translateOptions(options: OptionItem[]) {
-  return options.map((option) => {
+function translateOptions(options: OptionItem[]): CSelectOption<string>[] {
+  return options.flatMap((option) => {
     if (option.type === 'group' && option.children) {
-      return {
-        ...option,
-        label: t(option.label),
-        children: translateOptions(option.children),
-      };
+      return translateOptions(option.children);
     }
 
-    return {
-      ...option,
+    return [{
       label: t(option.label),
-    };
+      value: option.value ?? option.label,
+    }];
   });
 }
 
-const translatedSections = computed(() => sections.value.map(section => ({
+type TranslatedElement =
+  | OGSchemaTypeElementInput
+  | OGSchemaTypeElementInputMultiple
+  | (OGSchemaTypeElementSelect & { options: CSelectOption<string>[] });
+
+type TranslatedSection = Omit<OGSchemaType, 'elements' | 'name'> & { name: string; elements: TranslatedElement[] };
+
+const translatedSections = computed<TranslatedSection[]>(() => sections.value.map(section => ({
   ...section,
   name: t(section.name),
   elements: section.elements.map((element) => {
@@ -75,14 +79,14 @@ const translatedSections = computed(() => sections.value.map(section => ({
         label: t(element.label),
         placeholder: element.placeholder ? t(element.placeholder) : element.placeholder,
         options: translateOptions((element as OGSchemaTypeElementSelect).options as OptionItem[]),
-      };
+      } as TranslatedElement;
     }
 
     return {
       ...element,
       label: t(element.label),
       placeholder: element.placeholder ? t(element.placeholder) : element.placeholder,
-    };
+    } as TranslatedElement;
   }),
 })));
 
@@ -105,27 +109,27 @@ const metaTags = computed(() => {
         {{ name }}
       </div>
 
-      <n-input-group v-for="{ key, type, label, placeholder, ...element } of elements" :key="key">
+      <n-input-group v-for="element of elements" :key="element.key">
         <n-input-group-label style="flex: 0 0 110px">
-          {{ label }}
+          {{ element.label }}
         </n-input-group-label>
 
-        <c-input-text v-if="type === 'input'" v-model:value="metadata[key]" :placeholder="placeholder" clearable />
+        <c-input-text v-if="element.type === 'input'" v-model:value="metadata[element.key]" :placeholder="element.placeholder" clearable />
         <n-dynamic-input
-          v-else-if="type === 'input-multiple'"
-          v-model:value="metadata[key]"
+          v-else-if="element.type === 'input-multiple'"
+          v-model:value="metadata[element.key]"
           :min="1"
-          :placeholder="placeholder"
+          :placeholder="element.placeholder"
           :default-value="['']"
           :show-sort-button="true"
         />
 
         <c-select
-          v-else-if="type === 'select'"
-          v-model:value="metadata[key]"
+          v-else-if="element.type === 'select'"
+          v-model:value="metadata[element.key]"
           w-full
-          :placeholder="placeholder"
-          :options="(element as OGSchemaTypeElementSelect).options"
+          :placeholder="element.placeholder"
+          :options="element.options"
         />
       </n-input-group>
     </div>

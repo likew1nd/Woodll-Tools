@@ -11,7 +11,7 @@ const { copy, isJustCopied } = useCopy({ source: value, createToast: false });
   <c-tooltip :tooltip="isJustCopied ? '已复制！' : '复制到剪贴板'" cursor-pointer @click="copy">
     <span flex items-center gap-2>
       {{ displayedValue ?? value }}
-      <icon-mdi-content-copy v-if="showIcon" op-40 />
+      <icon-mdi-content-copy v-if="showIcon" class="op-40" />
     </span>
   </c-tooltip>
 </template>

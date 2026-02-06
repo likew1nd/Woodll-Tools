@@ -76,7 +76,7 @@ import { tool as svgPlaceholderGenerator } from './svg-placeholder-generator';
 import { tool as temperatureConverter } from './temperature-converter';
 import { tool as textStatistics } from './text-statistics';
 import { tool as tokenGenerator } from './token-generator';
-import type { ToolCategory } from './tools.types';
+import type { ToolCategoryRaw } from './tools.types';
 import { tool as urlEncoder } from './url-encoder';
 import { tool as urlParser } from './url-parser';
 import { tool as uuidGenerator } from './uuid-generator';
@@ -88,7 +88,7 @@ import { tool as myIp } from './my-ip';
 import { tool as pngToIco } from './png-to-ico';
 import { tool as vpsRemainingValue } from './vps-remaining-value';
 
-export const toolsByCategory: ToolCategory[] = [
+export const toolsByCategory: ToolCategoryRaw[] = [
   {
     name: 'Crypto',
     components: [tokenGenerator, bcrypt, uuidGenerator, ulidGenerator, cypher, bip39, hmacGenerator, rsaKeyPairGenerator, passwordStrengthAnalyser, pdfSignatureChecker],

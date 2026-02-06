@@ -18,7 +18,7 @@ const numeronym = computed(() => generateNumeronym(word.value));
       test-id="word-input"
     />
 
-    <icon-mdi-arrow-down text-30px />
+    <icon-mdi-arrow-down class="text-30px" />
 
     <input-copyable
       :value="numeronym"
