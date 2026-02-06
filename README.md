@@ -54,8 +54,6 @@ location /api/ {
 
 ## Docker Compose 一键部署
 
-先创建两个目录：`data` 和 `uploads`。
-
 然后保存为 `docker-compose.yml`，执行 `docker compose up -d` 即可运行。
 
 ```yaml
