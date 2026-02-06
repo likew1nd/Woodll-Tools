@@ -6,6 +6,10 @@ import { useTheme } from './c-select.theme';
 import { clamp } from '@/modules/shared/number.models';
 import { useFuzzySearch } from '@/composable/fuzzySearch';
 
+defineOptions({
+  inheritAttrs: false,
+});
+
 const props = withDefaults(
   defineProps<{
     options?: CSelectOption<T>[] | string[]
@@ -13,6 +17,7 @@ const props = withDefaults(
     placeholder?: string
     size?: 'small' | 'medium' | 'large'
     searchable?: boolean
+    testId?: string
   } & CLabelProps >(),
   {
     options: () => [],
@@ -20,6 +25,7 @@ const props = withDefaults(
     placeholder: undefined,
     size: 'medium',
     searchable: false,
+    testId: undefined,
   },
 );
 
@@ -139,7 +145,7 @@ function onSearchInput() {
 
 <template>
   <c-label v-bind="props">
-    <div ref="elementRef" relative class="c-select" w-full>
+    <div ref="elementRef" v-bind="$attrs" relative class="c-select" w-full>
       <div
         flex flex-nowrap cursor-pointer items-center
         :class="{ 'is-open': isOpen, 'important:border-primary': isOpen }"

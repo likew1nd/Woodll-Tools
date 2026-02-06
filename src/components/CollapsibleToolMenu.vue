@@ -62,7 +62,7 @@ const showBottomStack = ref(true);
 let bottomStackTimer: ReturnType<typeof setTimeout> | null = null;
 
 function setHeaderRef(name: string) {
-  return (el: Element | null) => {
+  return (el: object | null) => {
     if (el instanceof HTMLElement) {
       headerRefs.value[name] = el;
     }

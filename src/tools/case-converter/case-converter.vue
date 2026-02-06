@@ -88,7 +88,7 @@ const inputLabelAlignmentConfig = {
   labelPosition: 'left',
   labelWidth: '120px',
   labelAlign: 'right',
-};
+} as const;
 </script>
 
 <template>
@@ -97,7 +97,7 @@ const inputLabelAlignmentConfig = {
       v-model:value="input"
       :label="$t('tools.case-converter.inputLabel')"
       :placeholder="$t('tools.case-converter.inputPlaceholder')"
-      raw-text
+      :raw-text="true"
       v-bind="inputLabelAlignmentConfig"
     />
 
@@ -109,7 +109,7 @@ const inputLabelAlignmentConfig = {
       :value="format.value"
       :label="format.label"
       v-bind="inputLabelAlignmentConfig"
-      mb-1
+      class="mb-1"
     />
   </c-card>
 </template>

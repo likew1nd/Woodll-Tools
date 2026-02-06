@@ -39,7 +39,8 @@ export function buildDefaultToolsConfig(): ToolsConfig {
       enabled: true,
       featured: false,
     })));
-  const generated = {
+
+  const generated: ToolsConfig = {
     version: 1,
     categories,
     tools,

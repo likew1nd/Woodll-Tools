@@ -562,31 +562,31 @@ onMounted(loadSiteConfig);
                     <tr>
                       <td>
                         <n-input
-                          :value="activeCategory.id"
-                          :disabled="activeCategory.id === UNCATEGORIZED_ID"
+                          :value="activeCategory!.id"
+                          :disabled="activeCategory!.id === UNCATEGORIZED_ID"
                           placeholder="分类名称"
-                          @update:value="value => renameCategory(activeCategory.id, value)"
+                          @update:value="value => renameCategory(activeCategory!.id, value)"
                         />
                       </td>
                       <td>
                         <n-input-number
-                          v-model:value="getCategoryConfig(activeCategory.id).order"
+                          v-model:value="getCategoryConfig(activeCategory!.id).order"
                           :min="0"
-                          :disabled="activeCategory.id === UNCATEGORIZED_ID"
+                          :disabled="activeCategory!.id === UNCATEGORIZED_ID"
                         />
                       </td>
                       <td>
                         <n-switch
-                          v-model:value="getCategoryConfig(activeCategory.id).enabled"
-                          :disabled="activeCategory.id === UNCATEGORIZED_ID"
+                          v-model:value="getCategoryConfig(activeCategory!.id).enabled"
+                          :disabled="activeCategory!.id === UNCATEGORIZED_ID"
                         />
                       </td>
                       <td>
                         <n-button
                           tertiary
                           type="error"
-                          :disabled="activeCategory.id === UNCATEGORIZED_ID"
-                          @click="deleteCategory(activeCategory.id)"
+                          :disabled="activeCategory!.id === UNCATEGORIZED_ID"
+                          @click="deleteCategory(activeCategory!.id)"
                         >
                           删除
                         </n-button>

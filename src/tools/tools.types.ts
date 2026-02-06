@@ -14,7 +14,7 @@ export interface Tool {
 
 export interface ToolCategory {
   name: string
-  components: Tool[]
+  components: ToolWithCategory[]
 }
 
 export type ToolWithCategory = Tool & { category: string };

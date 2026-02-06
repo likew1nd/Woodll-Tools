@@ -62,7 +62,7 @@ const fonts = ['1Row', '3-D', '3D Diagonal', '3D-ASCII', '3x5', '4Max', '5 Line 
           label-position="top"
           :label="t('tools.ascii-text-drawer.fontLabel')"
           :options="fonts"
-          searchable="true"
+          searchable
           :placeholder="t('tools.ascii-text-drawer.fontPlaceholder')"
         />
       </n-gi>

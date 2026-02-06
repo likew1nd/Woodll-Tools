@@ -165,7 +165,7 @@ function formatDateUsingFormatter(formatter: (date: Date) => string, date?: Date
         style="flex: 0 0 170px"
         :options="formats.map(({ name }, i) => ({ label: $t(name), value: i }))"
         :placeholder="$t('tools.date-converter.selectPlaceholder')"
-        data-test-id="date-time-converter-format-select"
+        test-id="date-time-converter-format-select"
       />
     </div>
 
@@ -178,12 +178,12 @@ function formatDateUsingFormatter(formatter: (date: Date) => string, date?: Date
       label-width="150px"
       label-position="left"
       label-align="right"
-      rows="1"
+      :rows="1"
       :value="formatDateUsingFormatter(fromDate, normalizedDate)"
       :placeholder="$t('tools.date-converter.invalidDatePlaceholder')"
       :test-id="name"
       readonly
-      mt-2
+      class="mt-2"
     />
   </div>
 </template>
