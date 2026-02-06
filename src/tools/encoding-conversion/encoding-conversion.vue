@@ -393,8 +393,8 @@ const activeTab = ref(tabGroups.value[0]?.key ?? 'url');
                 v-for="(pair, index) in hashResultPairs"
                 :key="`hash-pair-${index}`"
                 grid
-                gap-3
                 sm:grid-cols-2
+                gap-3
               >
                 <InputCopyable
                   v-for="result in pair"
@@ -430,8 +430,8 @@ const activeTab = ref(tabGroups.value[0]?.key ?? 'url');
               v-for="(pair, index) in tab.pairs"
               :key="`${tab.key}-pair-${index}`"
               grid
-              gap-3
               sm:grid-cols-2
+              gap-3
             >
               <InputCopyable
                 v-if="pair[0]"
