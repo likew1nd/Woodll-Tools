@@ -41,11 +41,11 @@ const sections = computed(() => {
 });
 
 interface OptionItem {
-  label: string;
-  value?: string;
-  type?: string;
-  key?: string;
-  children?: OptionItem[];
+  label: string
+  value?: string
+  type?: string
+  key?: string
+  children?: OptionItem[]
 }
 
 function translateOptions(options: OptionItem[]) {

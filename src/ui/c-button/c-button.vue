@@ -52,14 +52,14 @@ const size = computed(() => theme.value.size[sizeName.value]);
 </script>
 
 <template>
-<component
-  :is="tag"
-  :href="href ?? to"
-  class="c-button"
-  :class="{ disabled, round, circle, 'is-text': variant === 'text', 'is-basic': variant === 'basic' }"
-  :to="to"
-  @click="handleClick"
->
+  <component
+    :is="tag"
+    :href="href ?? to"
+    class="c-button"
+    :class="{ disabled, round, circle, 'is-text': variant === 'text', 'is-basic': variant === 'basic' }"
+    :to="to"
+    @click="handleClick"
+  >
     <slot />
   </component>
 </template>

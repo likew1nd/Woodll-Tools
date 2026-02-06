@@ -380,7 +380,7 @@ function updateSelection(side: 'left' | 'right', offset: number) {
         {{ $t('tools.json-diff.format') }}
       </c-button>
     </div>
-    <div v-if="hasInvalidJson" text-center op-70 mb-2>
+    <div v-if="hasInvalidJson" mb-2 text-center op-70>
       {{ $t('tools.json-diff.invalidJson') }}
     </div>
     <c-diff-editor
@@ -395,7 +395,9 @@ function updateSelection(side: 'left' | 'right', offset: number) {
     />
     <div class="json-path-grid">
       <div>
-        <div class="json-path-label">{{ $t('tools.json-diff.leftLabel') }}</div>
+        <div class="json-path-label">
+          {{ $t('tools.json-diff.leftLabel') }}
+        </div>
         <div class="json-path-row">
           <span class="json-path-title">{{ $t('tools.json-diff.pathLabel') }}</span>
           <span class="json-path-value">{{ leftSelection?.path ?? '-' }}</span>
@@ -406,7 +408,9 @@ function updateSelection(side: 'left' | 'right', offset: number) {
         </div>
       </div>
       <div>
-        <div class="json-path-label">{{ $t('tools.json-diff.rightLabel') }}</div>
+        <div class="json-path-label">
+          {{ $t('tools.json-diff.rightLabel') }}
+        </div>
         <div class="json-path-row">
           <span class="json-path-title">{{ $t('tools.json-diff.pathLabel') }}</span>
           <span class="json-path-value">{{ rightSelection?.path ?? '-' }}</span>

@@ -1,6 +1,13 @@
 <script lang="ts">
 // --- 静态常量定义（移出组件以提升性能）---
 // 将常量和缓存移至普通 script 块中，使其在组件实例间共享，避免重复创建和请求
+// 缓存 1 小时
+</script>
+
+<script setup lang="ts">
+import { differenceInCalendarDays, format, isValid, startOfDay } from 'date-fns';
+import { useStyleStore } from '../../stores/style.store';
+
 const CURRENCY_SYMBOL_MAP: Record<string, string> = {
   USD: '$',
   CNY: 'CNY ',
@@ -52,16 +59,11 @@ const CURRENCY_OPTIONS = [
 ];
 
 const TRAFFIC_OPTIONS = ['2T', '1T', '500G', '300G', '250G', '200G', '100G'].map(value => ({ label: `${value}`, value }));
-const PORT_OPTIONS = ['1G', '2.5G', '10G',  '800M', '700M', '500M', '300M', '200M', '30M', '15M', '10M', '5M'].map(value => ({ label: `${value}`, value }));
+const PORT_OPTIONS = ['1G', '2.5G', '10G', '800M', '700M', '500M', '300M', '200M', '30M', '15M', '10M', '5M'].map(value => ({ label: `${value}`, value }));
 
 // 简单的内存缓存，避免重复请求（现在是全局共享的）
 const rateCache = new Map<string, { rate: number; time: number }>();
-const CACHE_DURATION = 1000 * 60 * 60; // 缓存 1 小时
-</script>
-
-<script setup lang="ts">
-import { differenceInCalendarDays, startOfDay, isValid, format } from 'date-fns';
-import { useStyleStore } from '../../stores/style.store';
+const CACHE_DURATION = 1000 * 60 * 60;
 
 const { t } = useI18n();
 const message = useMessage();
@@ -99,7 +101,7 @@ const lastShareMarkdown = ref('');
 const styleStore = useStyleStore();
 
 const normalizedEnd = computed(() => {
-  if (!endDate.value) return null;
+  if (!endDate.value) { return null; }
   const date = startOfDay(new Date(endDate.value));
   return isValid(date) ? date : null;
 });
@@ -107,8 +109,7 @@ const normalizedEnd = computed(() => {
 const periodDays = computed(() => PERIOD_DAYS_MAP[billingPeriod.value] ?? 365);
 
 const normalizedAsOf = computed(() => {
-
-  if (!asOfDate.value) return null;
+  if (!asOfDate.value) { return null; }
   const date = startOfDay(new Date(asOfDate.value));
   return isValid(date) ? date : null;
 });
@@ -118,55 +119,53 @@ const totalDays = computed(() => {
 });
 
 const remainingDays = computed(() => {
-  if (!totalDays.value || !normalizedEnd.value || !normalizedAsOf.value) return null;
-  if (normalizedAsOf.value >= normalizedEnd.value) return 0;
+  if (!totalDays.value || !normalizedEnd.value || !normalizedAsOf.value) { return null; }
+  if (normalizedAsOf.value >= normalizedEnd.value) { return 0; }
   return Math.max(0, differenceInCalendarDays(normalizedEnd.value, normalizedAsOf.value));
 });
 
 const usedDays = computed(() => {
-  if (!totalDays.value || remainingDays.value === null) return null;
+  if (!totalDays.value || remainingDays.value === null) { return null; }
   return Math.max(0, totalDays.value - remainingDays.value);
 });
 
 const remainingRatio = computed(() => {
-  if (!totalDays.value || remainingDays.value === null) return null;
+  if (!totalDays.value || remainingDays.value === null) { return null; }
   return totalDays.value === 0 ? 0 : remainingDays.value / totalDays.value;
 });
 
 function formatNumber(value: number | null) {
-  if (value === null || Number.isNaN(value) || !Number.isFinite(value)) return '';
+  if (value === null || Number.isNaN(value) || !Number.isFinite(value)) { return ''; }
   const digits = Math.max(0, Math.min(8, Number(decimalPlaces.value ?? 2)));
   return value.toFixed(digits);
 }
 
 const totalPriceInSettlement = computed(() => {
-  if (totalPrice.value === null || appliedRate.value === null) return null;
+  if (totalPrice.value === null || appliedRate.value === null) { return null; }
   return totalPrice.value * appliedRate.value;
 });
 
-
 const dailyRate = computed(() => {
-
-  if (totalPriceInSettlement.value === null) return null;
+  if (totalPriceInSettlement.value === null) { return null; }
   return totalPriceInSettlement.value / (periodDays.value || 1);
 });
 
 const remainingBaseValue = computed(() => {
-  if (dailyRate.value === null || remainingDays.value === null) return '';
+  if (dailyRate.value === null || remainingDays.value === null) { return ''; }
   const value = dailyRate.value * remainingDays.value;
   return formatNumber(value);
 });
 
 const premiumPercentValue = computed(() => {
-  if (dailyRate.value === null || remainingDays.value === null) return 0;
+  if (dailyRate.value === null || remainingDays.value === null) { return 0; }
   const pct = Number(premiumPercent.value ?? 0);
-  if (!Number.isFinite(pct) || pct <= 0) return 0;
+  if (!Number.isFinite(pct) || pct <= 0) { return 0; }
   return dailyRate.value * remainingDays.value * (pct / 100);
 });
 
 const premiumAmountValue = computed(() => {
   const amount = Number(premiumAmount.value ?? 0);
-  if (!Number.isFinite(amount) || amount <= 0) return 0;
+  if (!Number.isFinite(amount) || amount <= 0) { return 0; }
   return amount;
 });
 
@@ -175,12 +174,12 @@ const adjustmentAmount = computed(() => premiumPercentValue.value + premiumAmoun
 const adjustmentSigned = computed(() => (isDiscount.value ? -1 : 1) * adjustmentAmount.value);
 
 const premiumValue = computed(() => {
-  if (!Number.isFinite(adjustmentAmount.value) || adjustmentAmount.value <= 0) return '';
+  if (!Number.isFinite(adjustmentAmount.value) || adjustmentAmount.value <= 0) { return ''; }
   return formatNumber(adjustmentAmount.value);
 });
 
 const premiumBadgeText = computed(() => {
-  if (!premiumValue.value) return '';
+  if (!premiumValue.value) { return ''; }
   const label = isDiscount.value ? '折扣' : '溢价';
   const sign = isDiscount.value ? ' -' : ' +';
   return `${label}${sign}${premiumValue.value}`;
@@ -205,8 +204,8 @@ const trafficText = computed(() => {
   const traffic = trafficGb.value !== null && trafficGb.value !== '' ? `${trafficGb.value}` : '--';
   const port = portMbps.value !== null && portMbps.value !== '' ? `${portMbps.value}` : '--';
   const modeText = isTrafficBidirectional.value ? ' 双 ' : ' 单';
-  //const trafficPart = `${traffic}（${modeText}） `;
-  const trafficPart = `${traffic}${modeText}`;  
+  // const trafficPart = `${traffic}（${modeText}） `;
+  const trafficPart = `${traffic}${modeText}`;
   if (isTrafficBidirectional.value) {
     return `${trafficPart} / ${port}`;
   }
@@ -214,25 +213,24 @@ const trafficText = computed(() => {
 });
 
 const renewalText = computed(() => {
-  if (totalPrice.value === null || !Number.isFinite(totalPrice.value)) return '--';
+  if (totalPrice.value === null || !Number.isFinite(totalPrice.value)) { return '--'; }
   return `${formatNumber(totalPrice.value)} ${payCurrency.value}`;
 });
 
 const remainingValue = computed(() => {
-  if (dailyRate.value === null || remainingDays.value === null) return '';
+  if (dailyRate.value === null || remainingDays.value === null) { return ''; }
   const base = dailyRate.value * remainingDays.value;
   const value = base + adjustmentSigned.value;
   return `${currencySymbol.value}${formatNumber(value)}`;
 });
 
 const ratioPercent = computed(() => {
-  if (remainingRatio.value === null) return '';
+  if (remainingRatio.value === null) { return ''; }
   return `${formatNumber(remainingRatio.value * 100)}%`;
 });
 
-
 const remainingValuePay = computed(() => {
-  if (totalPrice.value === null || remainingDays.value === null) return '';
+  if (totalPrice.value === null || remainingDays.value === null) { return ''; }
   const value = (totalPrice.value / (periodDays.value || 1)) * remainingDays.value;
   return `${payCurrency.value} ${formatNumber(value)}`;
 });
@@ -247,25 +245,24 @@ const hasResult = computed(() => {
 });
 
 const progressPercent = computed(() => {
-  if (remainingRatio.value === null) return 0;
+  if (remainingRatio.value === null) { return 0; }
   return Math.max(0, Math.min(100, remainingRatio.value * 100));
 });
 
 const formattedAsOf = computed(() => {
-  if (!normalizedAsOf.value) return '--';
+  if (!normalizedAsOf.value) { return '--'; }
   return format(normalizedAsOf.value, 'yyyy-MM-dd');
 });
 
 const formattedEnd = computed(() => {
-  if (!normalizedEnd.value) return '--';
+  if (!normalizedEnd.value) { return '--'; }
   return format(normalizedEnd.value, 'yyyy-MM-dd');
 });
 
 const serviceActive = computed(() => {
-  if (invalidRange.value) return false;
+  if (invalidRange.value) { return false; }
   return (remainingDays.value ?? 0) > 0;
 });
-
 
 function buildPayload() {
   return {
@@ -408,7 +405,7 @@ async function copySvgToClipboard() {
 }
 
 const invalidRange = computed(() => {
-  if (!normalizedAsOf.value || !normalizedEnd.value) return false;
+  if (!normalizedAsOf.value || !normalizedEnd.value) { return false; }
   return differenceInCalendarDays(normalizedEnd.value, normalizedAsOf.value) <= 0;
 });
 
@@ -425,7 +422,7 @@ let abortController: AbortController | null = null;
 async function fetchRealtimeRate() {
   rateError.value = '';
   rateStatus.value = 'loading';
-  
+
   // 取消上一次未完成的请求
   if (abortController) {
     abortController.abort();
@@ -462,7 +459,7 @@ async function fetchRealtimeRate() {
     }
     const data = await response.json();
     const rate = data?.rates?.[settleCurrency.value];
-    
+
     if (!rate || typeof rate !== 'number') {
       throw new Error('Rate not found');
     }
@@ -474,7 +471,7 @@ async function fetchRealtimeRate() {
     rateStatus.value = 'success';
   }
   catch (err) {
-    if (err instanceof Error && err.name === 'AbortError') return;
+    if (err instanceof Error && err.name === 'AbortError') { return; }
     rateStatus.value = 'error';
     rateError.value = err instanceof Error ? err.message : 'Unknown error';
   }
@@ -491,7 +488,6 @@ onUnmounted(() => {
     abortController.abort();
   }
 });
-
 </script>
 
 <template>
@@ -504,30 +500,38 @@ onUnmounted(() => {
         <div class="vps-fields">
           <div class="vps-field vps-field-row">
             <div class="vps-row vps-row-head">
-            <div class="vps-label">{{ t('tools.vps-remaining-value.realtimeRate') }}</div>
-            <div class="vps-label">当前汇率（可修改）</div>
+              <div class="vps-label">
+                {{ t('tools.vps-remaining-value.realtimeRate') }}
+              </div>
+              <div class="vps-label">
+                当前汇率（可修改）
+              </div>
             </div>
             <div class="vps-row">
               <n-input-number
                 :value="realtimeRate ?? undefined"
                 :placeholder="t('tools.vps-remaining-value.realtimeRate')"
                 :disabled="rateStatus === 'loading'"
-                :input-props="{ autocomplete: 'off', 'data-lpignore': 'true' }"
+                :input-props="{ 'autocomplete': 'off', 'data-lpignore': 'true' }"
                 readonly
               />
               <n-input-number
                 v-model:value="appliedRate"
                 :placeholder="t('tools.vps-remaining-value.appliedRate')"
                 min="0"
-                :input-props="{ autocomplete: 'off', 'data-lpignore': 'true' }"
+                :input-props="{ 'autocomplete': 'off', 'data-lpignore': 'true' }"
                 @update:value="() => { isManualRate = true; }"
               />
             </div>
           </div>
-           <div class="vps-field vps-field-row">
+          <div class="vps-field vps-field-row">
             <div class="vps-row vps-row-head">
-              <div class="vps-label">{{ t('tools.vps-remaining-value.payCurrency') }}</div>
-              <div class="vps-label">{{ t('tools.vps-remaining-value.settleCurrency') }}</div>
+              <div class="vps-label">
+                {{ t('tools.vps-remaining-value.payCurrency') }}
+              </div>
+              <div class="vps-label">
+                {{ t('tools.vps-remaining-value.settleCurrency') }}
+              </div>
             </div>
             <div class="vps-row">
               <n-select
@@ -536,7 +540,7 @@ onUnmounted(() => {
                 :placeholder="t('tools.vps-remaining-value.payCurrency')"
                 class="vps-select vps-select-config"
               />
-              
+
               <n-select
                 v-model:value="settleCurrency"
                 :options="CURRENCY_OPTIONS"
@@ -546,7 +550,9 @@ onUnmounted(() => {
             </div>
           </div>
           <div class="vps-field vps-field-row">
-            <div class="vps-label">品名</div>
+            <div class="vps-label">
+              品名
+            </div>
             <div class="vps-row vps-row-full">
               <n-input
                 v-model:value="productName"
@@ -556,9 +562,15 @@ onUnmounted(() => {
           </div>
           <div class="vps-field vps-field-row">
             <div class="vps-row vps-row-head vps-row-3 vps-row-config">
-              <div class="vps-label">CPU（可自定义）</div>
-              <div class="vps-label">内存（可自定义）</div>
-              <div class="vps-label">硬盘（可自定义）</div>
+              <div class="vps-label">
+                CPU（可自定义）
+              </div>
+              <div class="vps-label">
+                内存（可自定义）
+              </div>
+              <div class="vps-label">
+                硬盘（可自定义）
+              </div>
             </div>
             <div class="vps-row vps-row-3 vps-row-config">
               <n-select
@@ -589,8 +601,12 @@ onUnmounted(() => {
           </div>
           <div class="vps-field vps-field-row">
             <div class="vps-row vps-row-head">
-              <div class="vps-label">流量（可自定义）</div>
-              <div class="vps-label">网口速率（可自定义）</div>
+              <div class="vps-label">
+                流量（可自定义）
+              </div>
+              <div class="vps-label">
+                网口速率（可自定义）
+              </div>
             </div>
             <div class="vps-row vps-row-traffic">
               <n-select
@@ -601,7 +617,9 @@ onUnmounted(() => {
                 tag
                 class="vps-select"
               />
-              <n-checkbox v-model:checked="isTrafficBidirectional">双向</n-checkbox>
+              <n-checkbox v-model:checked="isTrafficBidirectional">
+                双向
+              </n-checkbox>
               <n-select
                 v-model:value="portMbps"
                 :options="PORT_OPTIONS"
@@ -615,15 +633,19 @@ onUnmounted(() => {
 
           <div class="vps-field vps-field-row">
             <div class="vps-row vps-row-head">
-            <div class="vps-label">{{ t('tools.vps-remaining-value.totalPrice') }}</div>
-            <div class="vps-label">付费周期</div>
+              <div class="vps-label">
+                {{ t('tools.vps-remaining-value.totalPrice') }}
+              </div>
+              <div class="vps-label">
+                付费周期
+              </div>
             </div>
             <div class="vps-row">
               <n-input-number
                 v-model:value="totalPrice"
                 :placeholder="t('tools.vps-remaining-value.totalPrice')"
                 min="0"
-                :input-props="{ autocomplete: 'off', 'data-lpignore': 'true' }"
+                :input-props="{ 'autocomplete': 'off', 'data-lpignore': 'true' }"
               />
               <n-select
                 v-model:value="billingPeriod"
@@ -634,9 +656,13 @@ onUnmounted(() => {
           </div>
 
           <div class="vps-field vps-field-row">
-          <div class="vps-row vps-row-head">
-            <div class="vps-label">{{ t('tools.vps-remaining-value.endDate') }}</div>
-            <div class="vps-label">{{ t('tools.vps-remaining-value.asOfDate') }}</div>
+            <div class="vps-row vps-row-head">
+              <div class="vps-label">
+                {{ t('tools.vps-remaining-value.endDate') }}
+              </div>
+              <div class="vps-label">
+                {{ t('tools.vps-remaining-value.asOfDate') }}
+              </div>
             </div>
             <div class="vps-row">
               <n-date-picker
@@ -653,8 +679,12 @@ onUnmounted(() => {
           </div>
           <div class="vps-field vps-field-row">
             <div class="vps-row vps-row-head">
-              <div class="vps-label">{{ premiumPercentLabel }}</div>
-              <div class="vps-label">{{ premiumAmountLabel }}</div>
+              <div class="vps-label">
+                {{ premiumPercentLabel }}
+              </div>
+              <div class="vps-label">
+                {{ premiumAmountLabel }}
+              </div>
             </div>
             <div class="vps-row vps-row-3">
               <n-input-number
@@ -662,16 +692,18 @@ onUnmounted(() => {
                 :placeholder="premiumPercentLabel"
                 min="0"
                 max="1000"
-                :input-props="{ autocomplete: 'off', 'data-lpignore': 'true' }"
+                :input-props="{ 'autocomplete': 'off', 'data-lpignore': 'true' }"
               />
               <n-input-number
                 v-model:value="premiumAmount"
                 :placeholder="premiumAmountLabel"
                 min="0"
                 class="vps-premium-amount"
-                :input-props="{ autocomplete: 'off', 'data-lpignore': 'true' }"
+                :input-props="{ 'autocomplete': 'off', 'data-lpignore': 'true' }"
               />
-              <n-checkbox v-model:checked="isDiscount">折扣</n-checkbox>
+              <n-checkbox v-model:checked="isDiscount">
+                折扣
+              </n-checkbox>
             </div>
           </div>
           <n-alert v-if="invalidRange" type="warning" :show-icon="false">
@@ -695,10 +727,12 @@ onUnmounted(() => {
           {{ t('tools.vps-remaining-value.resultTitle') }}
         </div> -->
         <div class="vps-result-main">
-          <div class="vps-result-icon">$</div>
+          <div class="vps-result-icon">
+            $
+          </div>
           <div class="vps-result-title">
             <span class="vps-title-text">{{ t('tools.vps-remaining-value.remainingValue') }}</span>
-            <span v-if="premiumBadgeText" :class="['vps-premium-badge', isDiscount ? 'is-discount' : 'is-premium']">{{ premiumBadgeText }}</span>
+            <span v-if="premiumBadgeText" class="vps-premium-badge" :class="[isDiscount ? 'is-discount' : 'is-premium']">{{ premiumBadgeText }}</span>
           </div>
           <div class="vps-result-amount">
             {{ remainingValue || '--' }}
@@ -731,7 +765,9 @@ onUnmounted(() => {
 
       <div class="vps-time-card">
         <div class="vps-time-left">
-          <div class="vps-time-icon">🕙︎</div>
+          <div class="vps-time-icon">
+            🕙︎
+          </div>
           <div>
             <div class="vps-time-title">
               {{ t('tools.vps-remaining-value.remainingTime') }}
@@ -742,26 +778,32 @@ onUnmounted(() => {
           </div>
         </div>
         <div class="vps-time-right">
-          <div class="vps-time-days">{{ remainingDays ?? '--' }}</div>
-          <div class="vps-time-unit">{{ t('tools.vps-remaining-value.days') }}</div>
+          <div class="vps-time-days">
+            {{ remainingDays ?? '--' }}
+          </div>
+          <div class="vps-time-unit">
+            {{ t('tools.vps-remaining-value.days') }}
+          </div>
         </div>
         <div class="vps-time-range">
           <span>{{ formattedAsOf }}</span>
           <span>{{ formattedEnd }}</span>
         </div>
-        <div class="vps-site-footer">由 {{ siteHost }} 提供</div>
+        <div class="vps-site-footer">
+          由 {{ siteHost }} 提供
+        </div>
       </div>
-
     </div>
   </div>
   <n-modal v-model:show="isPreviewOpen" preset="card" :title="t('tools.vps-remaining-value.previewTitle')" style="width: 520px">
     <div class="vps-preview-modal">
-      <img v-if="previewUrl" :src="previewUrl" alt="svg preview" />
-      <div v-else class="vps-preview-empty">{{ t('tools.vps-remaining-value.previewMissing') }}</div>
+      <img v-if="previewUrl" :src="previewUrl" alt="svg preview">
+      <div v-else class="vps-preview-empty">
+        {{ t('tools.vps-remaining-value.previewMissing') }}
+      </div>
     </div>
   </n-modal>
 </template>
-
 
 <style scoped lang="less">
 .vps-layout {
@@ -853,7 +895,6 @@ onUnmounted(() => {
 .vps-field-row {
   gap: 10px;
 }
-
 
 .vps-result {
   display: grid;
@@ -1115,9 +1156,6 @@ onUnmounted(() => {
 .vps-preview-empty {
   color: var(--app-text-muted);
 }
-
-
-
 
 @media (max-width: 1024px) {
   .vps-layout {

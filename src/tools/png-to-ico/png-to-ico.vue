@@ -27,7 +27,7 @@ const activeSizes = computed(() => {
 });
 
 const downloadName = computed(() => {
-  if (!sourceFile.value) return 'icon.ico';
+  if (!sourceFile.value) { return 'icon.ico'; }
   const baseName = sourceFile.value.name.replace(/\.[^.]+$/, '') || 'icon';
   return `${baseName}.ico`;
 });
@@ -81,7 +81,8 @@ async function onUpload(file?: File) {
     imageUrl.value = dataUrl;
     imageInfo.value = { width: img.naturalWidth, height: img.naturalHeight };
     imageElement.value = img;
-  } catch {
+  }
+  catch {
     resetState();
     errorMessage.value = t('tools.png-to-ico.errors.noImage');
   }
@@ -123,7 +124,7 @@ async function renderPngForSize(img: HTMLImageElement, size: number) {
   context.drawImage(img, 0, 0, size, size);
 
   const blob = await new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob(result => {
+    canvas.toBlob((result) => {
       if (!result) {
         reject(new Error('toBlob'));
         return;
@@ -176,15 +177,17 @@ async function generateIco() {
     const blob = await buildIcoBlob(imageElement.value, activeSizes.value);
     clearDownloadUrl();
     downloadUrl.value = URL.createObjectURL(blob);
-  } catch {
+  }
+  catch {
     errorMessage.value = t('tools.png-to-ico.errors.generateFailed');
-  } finally {
+  }
+  finally {
     isGenerating.value = false;
   }
 }
 
 function downloadIco() {
-  if (!downloadUrl.value) return;
+  if (!downloadUrl.value) { return; }
   const link = document.createElement('a');
   link.href = downloadUrl.value;
   link.download = downloadName.value;
@@ -209,8 +212,12 @@ onBeforeUnmount(() => {
         <n-form label-width="120" label-placement="left" class="mt-4">
           <n-form-item :label="t('tools.png-to-ico.modeLabel')">
             <n-radio-group v-model:value="mode" size="small">
-              <n-radio value="multi">{{ t('tools.png-to-ico.modeMulti') }}</n-radio>
-              <n-radio value="single">{{ t('tools.png-to-ico.modeSingle') }}</n-radio>
+              <n-radio value="multi">
+                {{ t('tools.png-to-ico.modeMulti') }}
+              </n-radio>
+              <n-radio value="single">
+                {{ t('tools.png-to-ico.modeSingle') }}
+              </n-radio>
             </n-radio-group>
           </n-form-item>
 

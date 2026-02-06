@@ -113,10 +113,10 @@ function activateOption(option: PaletteOption) {
 <template>
   <div flex-1>
     <c-button w-full important:justify-start @click="isModalOpen = true">
-      <span flex gap-3 items-center op-40>
+      <span flex items-center gap-3 op-40>
         <icon-mdi-search />
         {{ $t('search.label') }}
-        <span border border-current border-op-40 border-solid flex-1 hidden px-5px py-3px rounded sm:inline>
+        <span hidden flex-1 border border-current border-op-40 rounded border-solid px-5px py-3px sm:inline>
           {{ isMac ? 'Cmd' : 'Ctrl' }}&nbsp;+&nbsp;K
         </span>
       </span>
@@ -125,9 +125,8 @@ function activateOption(option: PaletteOption) {
     <c-modal
       v-model:open="isModalOpen"
       class="palette-modal"
-      important:max-w-650px
-      important:pa-12px
-      shadow-xl
+
+      shadow-xl important:max-w-650px important:pa-12px
       @keydown="handleKeydown"
     >
       <c-input-text
@@ -140,7 +139,7 @@ function activateOption(option: PaletteOption) {
       />
 
       <div v-for="(options, category) in filteredSearchResult" :key="category">
-        <div font-bold ml-3 mt-3 op-60 text-primary text-sm>
+        <div ml-3 mt-3 text-sm text-primary font-bold op-60>
           {{ category }}
         </div>
         <command-palette-option

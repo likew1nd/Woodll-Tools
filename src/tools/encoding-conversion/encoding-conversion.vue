@@ -4,18 +4,6 @@ import { computed, ref, watch } from 'vue';
 import type { lib } from 'crypto-js';
 import CryptoJS, { MD5, RIPEMD160, SHA1, SHA224, SHA256, SHA3, SHA384, SHA512, enc } from 'crypto-js';
 
-import InputCopyable from '@/components/InputCopyable.vue';
-import { useCopy } from '@/composable/copy';
-import {
-  getExtensionFromMimeType,
-  getMimeTypeFromBase64,
-  previewImageFromBase64,
-  useDownloadFileFromBase64Refs,
-} from '@/composable/downloadBase64';
-import { useValidation } from '@/composable/validation';
-import { useQueryParam } from '@/composable/queryParams';
-import { withDefaultOnError } from '@/utils/defaults';
-import { isValidBase64 } from '@/utils/base64';
 import { convertHexToBin } from '../hash-text/hash-text.service';
 import {
   ansiToUcs2,
@@ -35,6 +23,18 @@ import {
   usc2ToAnsi,
   utf8ToGb2312,
 } from './encoding-conversion.service';
+import InputCopyable from '@/components/InputCopyable.vue';
+import { useCopy } from '@/composable/copy';
+import {
+  getExtensionFromMimeType,
+  getMimeTypeFromBase64,
+  previewImageFromBase64,
+  useDownloadFileFromBase64Refs,
+} from '@/composable/downloadBase64';
+import { useValidation } from '@/composable/validation';
+import { useQueryParam } from '@/composable/queryParams';
+import { withDefaultOnError } from '@/utils/defaults';
+import { isValidBase64 } from '@/utils/base64';
 
 const { t } = useI18n();
 
@@ -102,13 +102,13 @@ function formatHashWithEncoding(words: lib.WordArray, encoding: Encoding) {
   return words.toString(enc[encoding]);
 }
 
-const mapPairs = (items: Array<{ label: string; value: string }>) => {
+function mapPairs(items: Array<{ label: string; value: string }>) {
   const pairs: Array<Array<{ label: string; value: string }>> = [];
   for (let i = 0; i < items.length; i += 2) {
     pairs.push(items.slice(i, i + 2));
   }
   return pairs;
-};
+}
 
 const hashResults = computed(() =>
   algoNames.map(algo => ({
@@ -392,9 +392,8 @@ const activeTab = ref(tabGroups.value[0]?.key ?? 'url');
               <div
                 v-for="(pair, index) in hashResultPairs"
                 :key="`hash-pair-${index}`"
-                grid
-                sm:grid-cols-2
-                gap-3
+
+                grid gap-3 sm:grid-cols-2
               >
                 <InputCopyable
                   v-for="result in pair"
@@ -429,9 +428,8 @@ const activeTab = ref(tabGroups.value[0]?.key ?? 'url');
             <div
               v-for="(pair, index) in tab.pairs"
               :key="`${tab.key}-pair-${index}`"
-              grid
-              sm:grid-cols-2
-              gap-3
+
+              grid gap-3 sm:grid-cols-2
             >
               <InputCopyable
                 v-if="pair[0]"

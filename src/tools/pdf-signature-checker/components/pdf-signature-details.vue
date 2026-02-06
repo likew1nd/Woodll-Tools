@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { SignatureInfo } from '../pdf-signature-checker.types';
 
+const props = defineProps<{ signature: SignatureInfo }>();
+
 const { t } = useI18n();
 
-const props = defineProps<{ signature: SignatureInfo }>();
 const { signature } = toRefs(props);
 
 const tableHeaders = computed(() => ({

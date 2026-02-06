@@ -3,8 +3,8 @@ import { defineStore } from 'pinia';
 import type { Ref } from 'vue';
 import _ from 'lodash';
 import type { Tool, ToolCategory, ToolWithCategory } from './tools.types';
+import { type ToolsConfig, UNCATEGORIZED_ID, buildDefaultToolsConfig } from './tools-config';
 import { toolsWithCategory } from './index';
-import { buildDefaultToolsConfig, type ToolsConfig, UNCATEGORIZED_ID } from './tools-config';
 import { useToolsConfigStore } from '@/stores/tools-config.store';
 
 export const useToolStore = defineStore('tools', () => {
@@ -40,7 +40,7 @@ export const useToolStore = defineStore('tools', () => {
     }
 
     const defaultCategoryOrder = new Map(defaultConfig.categories.map((category, index) => [category.id, index]));
-    const defaultToolOrder = new Map(defaultConfig.tools.map((tool) => [tool.path, tool.order]));
+    const defaultToolOrder = new Map(defaultConfig.tools.map(tool => [tool.path, tool.order]));
 
     const visibleTools = tools.value
       .map((tool) => {

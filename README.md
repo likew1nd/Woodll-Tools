@@ -63,13 +63,13 @@ location /api/ {
 然后保存为 `docker-compose.yml`，执行 `docker compose up -d` 即可运行。
 
 ```yaml
-version: "3.8"
+v'3.8'n: "3.8"
 
 services:
   woodll-tools:
     image: ghcr.io/likew1nd/woodll-tools:latest
     ports:
-      - "8080:80"
+     '8080:80'80"
     volumes:
       - woodll-data:/var/www/html/data
       - woodll-uploads:/var/www/html/uploads

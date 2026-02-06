@@ -3,21 +3,21 @@ import SpanCopyable from '@/components/SpanCopyable.vue';
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
 
-type Result = {
+interface Result {
   status: Status
   ip?: string
   location?: string
   isp?: string
   error?: string
-};
+}
 
-type Source = {
+interface Source {
   id: string
   label: string
   description: string
   url: string
   parser?: (data: unknown) => { ip?: string; location?: string; isp?: string }
-};
+}
 
 const { t } = useI18n();
 
@@ -117,7 +117,8 @@ async function fetchSource(source: Source) {
     result.ip = parsed.ip;
     result.location = parsed.location;
     result.isp = parsed.isp;
-  } catch (error) {
+  }
+  catch (error) {
     result.status = 'error';
     result.error = error instanceof Error ? error.message : t('tools.my-ip.errors.unknown');
   }
@@ -126,7 +127,8 @@ async function fetchSource(source: Source) {
 function safeJsonParse(text: string) {
   try {
     return JSON.parse(text);
-  } catch {
+  }
+  catch {
     return null;
   }
 }
@@ -152,17 +154,25 @@ onMounted(() => {
       <n-gi v-for="source in sources" :key="source.id">
         <div class="ip-card">
           <div class="card-header">
-            <div class="card-title">{{ source.label }}</div>
-            <div class="card-subtitle">{{ source.description }}</div>
+            <div class="card-title">
+              {{ source.label }}
+            </div>
+            <div class="card-subtitle">
+              {{ source.description }}
+            </div>
           </div>
 
           <div class="card-body">
             <template v-if="getResult(source.id).status === 'loading'">
-              <div class="status">{{ $t('tools.my-ip.loading') }}</div>
+              <div class="status">
+                {{ $t('tools.my-ip.loading') }}
+              </div>
             </template>
 
             <template v-else-if="getResult(source.id).status === 'error'">
-              <div class="status error">{{ getResult(source.id).error }}</div>
+              <div class="status error">
+                {{ getResult(source.id).error }}
+              </div>
             </template>
 
             <template v-else>
@@ -170,8 +180,12 @@ onMounted(() => {
                 <SpanCopyable v-if="getResult(source.id).ip" :value="getResult(source.id).ip" />
                 <span v-else class="status">{{ $t('tools.my-ip.unavailable') }}</span>
               </div>
-              <div v-if="getResult(source.id).location" class="meta">{{ getResult(source.id).location }}</div>
-              <div v-if="getResult(source.id).isp" class="meta">{{ getResult(source.id).isp }}</div>
+              <div v-if="getResult(source.id).location" class="meta">
+                {{ getResult(source.id).location }}
+              </div>
+              <div v-if="getResult(source.id).isp" class="meta">
+                {{ getResult(source.id).isp }}
+              </div>
             </template>
           </div>
         </div>

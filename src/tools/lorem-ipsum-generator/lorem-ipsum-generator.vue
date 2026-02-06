@@ -40,8 +40,12 @@ const { copy } = useCopy({ source: loremIpsumText, text: t('tools.lorem-ipsum-ge
     </n-form-item>
     <n-form-item :label="t('tools.lorem-ipsum-generator.languageLabel')" :show-feedback="false" label-width="200" label-placement="left">
       <n-radio-group v-model:value="language" size="small">
-        <n-radio value="en">{{ t('tools.lorem-ipsum-generator.languageOptions.english') }}</n-radio>
-        <n-radio value="zh">{{ t('tools.lorem-ipsum-generator.languageOptions.chinese') }}</n-radio>
+        <n-radio value="en">
+          {{ t('tools.lorem-ipsum-generator.languageOptions.english') }}
+        </n-radio>
+        <n-radio value="zh">
+          {{ t('tools.lorem-ipsum-generator.languageOptions.chinese') }}
+        </n-radio>
       </n-radio-group>
     </n-form-item>
     <n-form-item :label="t('tools.lorem-ipsum-generator.startWithLabel')" :show-feedback="false" label-width="200" label-placement="left">

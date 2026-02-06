@@ -1,32 +1,32 @@
 home:
   categories:
-    newestTools: '最新工具'
-    favoriteTools: '我的收藏'
-    allTools: '全部工具'
-    favoritesDndToolTip: '拖放重新排列收藏夹'
-  subtitle: '助力开发人员和 IT 工作者'
-  toggleMenu: '切换菜单'
-  home: '主页'
-  uiLib: 'UI 库'
-  support: '支持 IT 工具开发'
-  buyMeACoffee: '赞助'
+    newestTools: 最新工具
+    favoriteTools: 我的收藏
+    allTools: 全部工具
+    favoritesDndToolTip: 拖放重新排列收藏夹
+  subtitle: 助力开发人员和 IT 工作者
+  toggleMenu: 切换菜单
+  home: 主页
+  uiLib: UI 库
+  support: 支持 IT 工具开发
+  buyMeACoffee: 赞助
   follow:
-    title: '关注我们'
-    p1: '给我们 Star'
-    githubRepository: 'GitHub 仓库'
-    p2: '关注我们的'
-    twitterXAccount: 'IT-Tools X 账号'
-    thankYou: '感谢您的支持！'
+    title: 关注我们
+    p1: 给我们 Star
+    githubRepository: GitHub 仓库
+    p2: 关注我们的
+    twitterXAccount: IT-Tools X 账号
+    thankYou: 感谢您的支持！
   nav:
-    github: 'GitHub 仓库'
-    githubRepository: 'GitHub 仓库'
-    twitterX: 'Twitter 账号'
-    twitterXAccount: 'IT-Tools X 账号'
-    about: '关于 IT-Tools'
-    aboutLabel: '关于'
-    darkMode: '深色模式'
-    lightMode: '浅色模式'
-    mode: '颜色模式'
+    github: GitHub 仓库
+    githubRepository: GitHub 仓库
+    twitterX: Twitter 账号
+    twitterXAccount: IT-Tools X 账号
+    about: 关于 IT-Tools
+    aboutLabel: 关于
+    darkMode: 深色模式
+    lightMode: 浅色模式
+    mode: 颜色模式
 about:
   content: >
     # 关于 IT-Tools
@@ -46,17 +46,17 @@ about:
     如果您发现了 Bug，或者某些功能未能按预期工作，请在 GitHub 仓库的 [issues](https://github.com/CorentinTh/it-tools/issues/new/choose) 中提交错误报告。
 
 404:
-  notFound: '404 页面不存在'
-  sorry: '抱歉，该页面似乎不存在'
-  maybe: '也许缓存出现了一些问题，试试强制刷新页面？'
-  backHome: '返回主页'
+  notFound: 404 页面不存在
+  sorry: 抱歉，该页面似乎不存在
+  maybe: 也许缓存出现了一些问题，试试强制刷新页面？
+  backHome: 返回主页
 favoriteButton:
-  remove: '取消收藏'
-  add: '加入收藏'
+  remove: 取消收藏
+  add: 加入收藏
 toolCard:
-  new: '新'
+  new: 新
 search:
-  label: '搜索'
+  label: 搜索
   placeholder: 输入工具或命令进行搜索...
 ui:
   fileUpload:
@@ -68,19 +68,19 @@ ui:
     copied: 已复制
 tools:
   categories:
-    favorite-tools: '我的收藏'
-    crypto: '加密'
-    converter: '转换器'
+    favorite-tools: 我的收藏
+    crypto: 加密
+    converter: 转换器
     web: Web
-    json: 'JSON'
-    images and videos: '图片和视频'
-    development: '开发'
-    network: '网络'
-    math: '数学'
-    measurement: '测量'
-    text: '文本'
-    data: '数据'
-    uncategorized: '无分类'
+    json: JSON
+    images and videos: 图片和视频
+    development: 开发
+    network: 网络
+    math: 数学
+    measurement: 测量
+    text: 文本
+    data: 数据
+    uncategorized: 无分类
 
   password-strength-analyser:
     title: 密码强度分析器
@@ -129,12 +129,12 @@ tools:
     title: 密码生成器
     description: 使用您想要的字符、大写或小写字母、数字和/或符号生成随机字符串。
 
-    uppercase: '大写 (ABC...)'
-    lowercase: '小写 (abc...)'
-    numbers: '数字 (123...)'
-    symbols: '符号 (!-;...)'
-    length: '长度'
-    tokenPlaceholder: '令牌...'
+    uppercase: 大写 (ABC...)
+    lowercase: 小写 (abc...)
+    numbers: 数字 (123...)
+    symbols: 符号 (!-;...)
+    length: 长度
+    tokenPlaceholder: 令牌...
     copied: 复制到剪贴板
     button:
       copy: 复制
@@ -143,7 +143,7 @@ tools:
     title: 百分比计算器
     description: 轻松计算从一个值到另一个值的百分比，或从百分比到值的百分比。
     whatIs: 多少是
-    percentOf: "% 的"
+    percentOf: '% 的'
     xPercentOfY: X 是 Y 的百分之多少
     isWhatPercentOf: 是多少百分比的
     increaseDecreaseTitle: 百分比增减是多少
@@ -1168,7 +1168,7 @@ tools:
   html-wysiwyg-editor:
     title: HTML 编辑器
     description: 在线HTML编辑器具有功能丰富的所见即所得编辑器，立即获得内容的源代码。
-    defaultHtml: '<h1>你好！</h1><p>欢迎使用这个 HTML 所见即所得编辑器</p>'
+    defaultHtml: <h1>你好！</h1><p>欢迎使用这个 HTML 所见即所得编辑器</p>
     bold: 加粗
     italic: 斜体
     strike: 删除线
@@ -1208,7 +1208,7 @@ tools:
     separator:
       colon: ':'
       dash: '-'
-      dot: '.'
+      dot: .
       none: 无
     refresh: 刷新
     copy: 复制
@@ -1312,7 +1312,6 @@ tools:
     previousBlock: 上一个子网
     nextBlock: 下一个子网
 
-
   ipv6-ula-generator:
     title: IPv6 ULA生成器
     description: 根据RFC4193在网络上生成您自己的本地不可路由IP地址。
@@ -1326,7 +1325,7 @@ tools:
 
   hash-text:
     title: Hash 文本
-    description: '使用所需的函数哈希文本字符串：MD5、SHA1、SHA256、SHA224、SHA512、SHA384、SHA3或RIPEMD160'
+    description: 使用所需的函数哈希文本字符串：MD5、SHA1、SHA256、SHA224、SHA512、SHA384、SHA3或RIPEMD160
     inputLabel: 请输入要哈希的文本：
     inputPlaceholder: 输入要哈希的字符串...
     encodingLabel: 摘要编码
@@ -1358,7 +1357,7 @@ tools:
 
   pdf-signature-checker:
     title: PDF 签名检查器
-    description: '验证PDF文件的签名。签名的PDF文件包含一个或多个签名，可用于确定文件的内容在签名后是否已被更改。'
+    description: 验证PDF文件的签名。签名的PDF文件包含一个或多个签名，可用于确定文件的内容在签名后是否已被更改。
     uploadTitle: 拖拽 PDF 文件到这里，或点击选择文件
     noSignatures: 提供的文件中未找到签名。
     signatureCertificates: 签名 {index} 证书：

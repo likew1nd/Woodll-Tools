@@ -5,10 +5,10 @@ on:
     branches:
       - main
     paths-ignore:
-      - "**/*.md"
-      - ".github/ISSUE_TEMPLATE/**"
-      - ".github/PULL_REQUEST_TEMPLATE/**"
-      - ".github/FUNDING.yml"
+      - '**/*.md'
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE/**'
+      - .github/FUNDING.yml
 
 permissions:
   contents: write
@@ -46,7 +46,7 @@ jobs:
           fi
           NOTES=$(git log $RANGE --pretty=format:'- %s (%h)')
           if [ -z "$NOTES" ]; then
-            NOTES='- ×Ô¶¯·¢²¼'
+            NOTES='- ï¿½Ô¶ï¿½ï¿½ï¿½ï¿½ï¿½'
           fi
           EOF=$(openssl rand -hex 8)
           echo "notes<<$EOF" >> $GITHUB_OUTPUT
@@ -77,11 +77,11 @@ jobs:
           tag_name: v${{ steps.version.outputs.version }}
           name: v${{ steps.version.outputs.version }}
           body: |
-            ## ±ä¸üËµÃ÷
+            ## ï¿½ï¿½ï¿½Ëµï¿½ï¿½
 
             ${{ steps.notes.outputs.notes }}
 
-            ## ×ÊÔ´
+            ## ï¿½ï¿½Ô´
 
             - `woodll-tools-${{ steps.version.outputs.version }}.zip`
           files: woodll-tools-${{ steps.version.outputs.version }}.zip

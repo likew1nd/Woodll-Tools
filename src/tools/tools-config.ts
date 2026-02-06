@@ -1,28 +1,28 @@
-import { toolsByCategory } from './index';
 import seedConfig from './tools-config.seed.json';
+import { toolsByCategory } from './index';
 
-export type ToolsConfig = {
+export interface ToolsConfig {
   version: 1
   categories: CategoryConfig[]
   tools: ToolConfig[]
   updatedAt?: string
-};
+}
 
 export const UNCATEGORIZED_ID = 'uncategorized';
 
-export type CategoryConfig = {
+export interface CategoryConfig {
   id: string
   order: number
   enabled: boolean
-};
+}
 
-export type ToolConfig = {
+export interface ToolConfig {
   path: string
   categoryId: string
   order: number
   enabled: boolean
   featured: boolean
-};
+}
 
 export function buildDefaultToolsConfig(): ToolsConfig {
   const categories: CategoryConfig[] = toolsByCategory.map((category, index) => ({
@@ -31,7 +31,7 @@ export function buildDefaultToolsConfig(): ToolsConfig {
     enabled: true,
   }));
 
-  const tools: ToolConfig[] = toolsByCategory.flatMap((category) =>
+  const tools: ToolConfig[] = toolsByCategory.flatMap(category =>
     category.components.map((tool, index) => ({
       path: tool.path,
       categoryId: category.name,
