@@ -6,8 +6,6 @@ import {
 } from './useQRCode';
 import { useDownloadFileFromBase64 } from '@/composable/downloadBase64';
 
-const { t } = useI18n();
-
 const foreground = ref('#000000ff');
 const background = ref('#ffffffff');
 

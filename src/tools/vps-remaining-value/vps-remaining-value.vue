@@ -101,7 +101,9 @@ const lastShareMarkdown = ref('');
 const styleStore = useStyleStore();
 
 const normalizedEnd = computed(() => {
-  if (!endDate.value) { return null; }
+  if (!endDate.value) {
+    return null;
+  }
   const date = startOfDay(new Date(endDate.value));
   return isValid(date) ? date : null;
 });
@@ -109,7 +111,9 @@ const normalizedEnd = computed(() => {
 const periodDays = computed(() => PERIOD_DAYS_MAP[billingPeriod.value] ?? 365);
 
 const normalizedAsOf = computed(() => {
-  if (!asOfDate.value) { return null; }
+  if (!asOfDate.value) {
+    return null;
+  }
   const date = startOfDay(new Date(asOfDate.value));
   return isValid(date) ? date : null;
 });
@@ -119,53 +123,68 @@ const totalDays = computed(() => {
 });
 
 const remainingDays = computed(() => {
-  if (!totalDays.value || !normalizedEnd.value || !normalizedAsOf.value) { return null; }
-  if (normalizedAsOf.value >= normalizedEnd.value) { return 0; }
+  if (!totalDays.value || !normalizedEnd.value || !normalizedAsOf.value) {
+    return null;
+  }
+  if (normalizedAsOf.value >= normalizedEnd.value) {
+    return 0;
+  }
   return Math.max(0, differenceInCalendarDays(normalizedEnd.value, normalizedAsOf.value));
 });
 
-const usedDays = computed(() => {
-  if (!totalDays.value || remainingDays.value === null) { return null; }
-  return Math.max(0, totalDays.value - remainingDays.value);
-});
-
 const remainingRatio = computed(() => {
-  if (!totalDays.value || remainingDays.value === null) { return null; }
+  if (!totalDays.value || remainingDays.value === null) {
+    return null;
+  }
   return totalDays.value === 0 ? 0 : remainingDays.value / totalDays.value;
 });
 
 function formatNumber(value: number | null) {
-  if (value === null || Number.isNaN(value) || !Number.isFinite(value)) { return ''; }
+  if (value === null || Number.isNaN(value) || !Number.isFinite(value)) {
+    return '';
+  }
   const digits = Math.max(0, Math.min(8, Number(decimalPlaces.value ?? 2)));
   return value.toFixed(digits);
 }
 
 const totalPriceInSettlement = computed(() => {
-  if (totalPrice.value === null || appliedRate.value === null) { return null; }
+  if (totalPrice.value === null || appliedRate.value === null) {
+    return null;
+  }
   return totalPrice.value * appliedRate.value;
 });
 
 const dailyRate = computed(() => {
-  if (totalPriceInSettlement.value === null) { return null; }
+  if (totalPriceInSettlement.value === null) {
+    return null;
+  }
   return totalPriceInSettlement.value / (periodDays.value || 1);
 });
 
 const remainingBaseValue = computed(() => {
-  if (dailyRate.value === null || remainingDays.value === null) { return ''; }
+  if (dailyRate.value === null || remainingDays.value === null) {
+    return '';
+  }
   const value = dailyRate.value * remainingDays.value;
   return formatNumber(value);
 });
 
 const premiumPercentValue = computed(() => {
-  if (dailyRate.value === null || remainingDays.value === null) { return 0; }
+  if (dailyRate.value === null || remainingDays.value === null) {
+    return 0;
+  }
   const pct = Number(premiumPercent.value ?? 0);
-  if (!Number.isFinite(pct) || pct <= 0) { return 0; }
+  if (!Number.isFinite(pct) || pct <= 0) {
+    return 0;
+  }
   return dailyRate.value * remainingDays.value * (pct / 100);
 });
 
 const premiumAmountValue = computed(() => {
   const amount = Number(premiumAmount.value ?? 0);
-  if (!Number.isFinite(amount) || amount <= 0) { return 0; }
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return 0;
+  }
   return amount;
 });
 
@@ -174,12 +193,16 @@ const adjustmentAmount = computed(() => premiumPercentValue.value + premiumAmoun
 const adjustmentSigned = computed(() => (isDiscount.value ? -1 : 1) * adjustmentAmount.value);
 
 const premiumValue = computed(() => {
-  if (!Number.isFinite(adjustmentAmount.value) || adjustmentAmount.value <= 0) { return ''; }
+  if (!Number.isFinite(adjustmentAmount.value) || adjustmentAmount.value <= 0) {
+    return '';
+  }
   return formatNumber(adjustmentAmount.value);
 });
 
 const premiumBadgeText = computed(() => {
-  if (!premiumValue.value) { return ''; }
+  if (!premiumValue.value) {
+    return '';
+  }
   const label = isDiscount.value ? '折扣' : '溢价';
   const sign = isDiscount.value ? ' -' : ' +';
   return `${label}${sign}${premiumValue.value}`;
@@ -213,26 +236,19 @@ const trafficText = computed(() => {
 });
 
 const renewalText = computed(() => {
-  if (totalPrice.value === null || !Number.isFinite(totalPrice.value)) { return '--'; }
+  if (totalPrice.value === null || !Number.isFinite(totalPrice.value)) {
+    return '--';
+  }
   return `${formatNumber(totalPrice.value)} ${payCurrency.value}`;
 });
 
 const remainingValue = computed(() => {
-  if (dailyRate.value === null || remainingDays.value === null) { return ''; }
+  if (dailyRate.value === null || remainingDays.value === null) {
+    return '';
+  }
   const base = dailyRate.value * remainingDays.value;
   const value = base + adjustmentSigned.value;
   return `${currencySymbol.value}${formatNumber(value)}`;
-});
-
-const ratioPercent = computed(() => {
-  if (remainingRatio.value === null) { return ''; }
-  return `${formatNumber(remainingRatio.value * 100)}%`;
-});
-
-const remainingValuePay = computed(() => {
-  if (totalPrice.value === null || remainingDays.value === null) { return ''; }
-  const value = (totalPrice.value / (periodDays.value || 1)) * remainingDays.value;
-  return `${payCurrency.value} ${formatNumber(value)}`;
 });
 
 const hasResult = computed(() => {
@@ -245,23 +261,24 @@ const hasResult = computed(() => {
 });
 
 const progressPercent = computed(() => {
-  if (remainingRatio.value === null) { return 0; }
+  if (remainingRatio.value === null) {
+    return 0;
+  }
   return Math.max(0, Math.min(100, remainingRatio.value * 100));
 });
 
 const formattedAsOf = computed(() => {
-  if (!normalizedAsOf.value) { return '--'; }
+  if (!normalizedAsOf.value) {
+    return '--';
+  }
   return format(normalizedAsOf.value, 'yyyy-MM-dd');
 });
 
 const formattedEnd = computed(() => {
-  if (!normalizedEnd.value) { return '--'; }
+  if (!normalizedEnd.value) {
+    return '--';
+  }
   return format(normalizedEnd.value, 'yyyy-MM-dd');
-});
-
-const serviceActive = computed(() => {
-  if (invalidRange.value) { return false; }
-  return (remainingDays.value ?? 0) > 0;
 });
 
 function buildPayload() {
@@ -405,7 +422,9 @@ async function copySvgToClipboard() {
 }
 
 const invalidRange = computed(() => {
-  if (!normalizedAsOf.value || !normalizedEnd.value) { return false; }
+  if (!normalizedAsOf.value || !normalizedEnd.value) {
+    return false;
+  }
   return differenceInCalendarDays(normalizedEnd.value, normalizedAsOf.value) <= 0;
 });
 

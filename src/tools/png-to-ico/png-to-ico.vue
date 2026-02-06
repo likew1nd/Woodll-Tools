@@ -27,7 +27,9 @@ const activeSizes = computed(() => {
 });
 
 const downloadName = computed(() => {
-  if (!sourceFile.value) { return 'icon.ico'; }
+  if (!sourceFile.value) {
+    return 'icon.ico';
+  }
   const baseName = sourceFile.value.name.replace(/\.[^.]+$/, '') || 'icon';
   return `${baseName}.ico`;
 });
@@ -187,7 +189,9 @@ async function generateIco() {
 }
 
 function downloadIco() {
-  if (!downloadUrl.value) { return; }
+  if (!downloadUrl.value) {
+    return;
+  }
   const link = document.createElement('a');
   link.href = downloadUrl.value;
   link.download = downloadName.value;

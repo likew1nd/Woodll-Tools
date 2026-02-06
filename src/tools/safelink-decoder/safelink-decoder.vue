@@ -2,8 +2,6 @@
 import { decodeSafeLinksURL } from './safelink-decoder.service';
 import TextareaCopyable from '@/components/TextareaCopyable.vue';
 
-const { t } = useI18n();
-
 const inputSafeLinkUrl = ref('');
 const outputDecodedUrl = computed(() => {
   try {
