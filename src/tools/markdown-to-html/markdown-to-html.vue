@@ -2,8 +2,6 @@
 import markdownit from 'markdown-it';
 import TextareaCopyable from '@/components/TextareaCopyable.vue';
 
-const { t } = useI18n();
-
 const inputMarkdown = ref('');
 const outputHtml = computed(() => {
   const md = markdownit();

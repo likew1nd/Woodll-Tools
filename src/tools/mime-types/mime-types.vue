@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { types as extensionToMimeType, extensions as mimeTypeToExtension } from 'mime-types';
 
-const { t } = useI18n();
-
 const mimeInfos = Object.entries(mimeTypeToExtension).map(([mimeType, extensions]) => ({ mimeType, extensions }));
 
 const mimeToExtensionsOptions = Object.keys(mimeTypeToExtension).map(label => ({ label, value: label }));

@@ -490,7 +490,9 @@ async function fetchRealtimeRate() {
     rateStatus.value = 'success';
   }
   catch (err) {
-    if (err instanceof Error && err.name === 'AbortError') { return; }
+    if (err instanceof Error && err.name === 'AbortError') {
+      return;
+    }
     rateStatus.value = 'error';
     rateError.value = err instanceof Error ? err.message : 'Unknown error';
   }
