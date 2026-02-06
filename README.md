@@ -52,6 +52,12 @@ location /api/ {
 }
 ```
 
+## 后台管理
+
+- 后台地址：`/admin`
+- 默认账号：`admin`
+- 默认密码：`admin123`
+
 ## Docker Compose 一键部署
 
 然后保存为 `docker-compose.yml`，执行 `docker compose up -d` 即可运行。
