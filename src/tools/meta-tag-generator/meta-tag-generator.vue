@@ -40,7 +40,13 @@ const sections = computed(() => {
   return secs;
 });
 
-type OptionItem = { label: string; value?: string; type?: string; key?: string; children?: OptionItem[] };
+interface OptionItem {
+  label: string;
+  value?: string;
+  type?: string;
+  key?: string;
+  children?: OptionItem[];
+}
 
 function translateOptions(options: OptionItem[]) {
   return options.map((option) => {

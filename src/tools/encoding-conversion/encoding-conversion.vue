@@ -4,6 +4,19 @@ import { computed, ref, watch } from 'vue';
 import type { lib } from 'crypto-js';
 import CryptoJS, { MD5, RIPEMD160, SHA1, SHA224, SHA256, SHA3, SHA384, SHA512, enc } from 'crypto-js';
 
+import InputCopyable from '@/components/InputCopyable.vue';
+import { useCopy } from '@/composable/copy';
+import {
+  getExtensionFromMimeType,
+  getMimeTypeFromBase64,
+  previewImageFromBase64,
+  useDownloadFileFromBase64Refs,
+} from '@/composable/downloadBase64';
+import { useValidation } from '@/composable/validation';
+import { useQueryParam } from '@/composable/queryParams';
+import { withDefaultOnError } from '@/utils/defaults';
+import { isValidBase64 } from '@/utils/base64';
+import { convertHexToBin } from '../hash-text/hash-text.service';
 import {
   ansiToUcs2,
   ansiToUnicode,
@@ -22,19 +35,6 @@ import {
   usc2ToAnsi,
   utf8ToGb2312,
 } from './encoding-conversion.service';
-import InputCopyable from '@/components/InputCopyable.vue';
-import { useCopy } from '@/composable/copy';
-import {
-  getExtensionFromMimeType,
-  getMimeTypeFromBase64,
-  previewImageFromBase64,
-  useDownloadFileFromBase64Refs,
-} from '@/composable/downloadBase64';
-import { useValidation } from '@/composable/validation';
-import { useQueryParam } from '@/composable/queryParams';
-import { withDefaultOnError } from '@/utils/defaults';
-import { isValidBase64 } from '@/utils/base64';
-import { convertHexToBin } from '../hash-text/hash-text.service';
 
 const { t } = useI18n();
 
@@ -43,7 +43,9 @@ const smallRows = 3;
 
 const sourceText = ref('123 ABC 你好');
 
-const transformValue = (handler: (value: string) => string) => withDefaultOnError(() => handler(sourceText.value), '');
+function transformValue(handler: (value: string) => string) {
+  return withDefaultOnError(() => handler(sourceText.value), '');
+}
 
 const algos = {
   MD5,
@@ -399,10 +401,10 @@ const activeTab = ref(tabGroups.value[0]?.key ?? 'url');
                   :key="result.label"
                   :value="result.value"
                   :label="result.label"
-                  mb-1
                   class="w-full"
                   :rows="smallRows"
                   readonly
+                  mb-1
                 />
               </div>
             </div>
@@ -415,9 +417,9 @@ const activeTab = ref(tabGroups.value[0]?.key ?? 'url');
             <InputCopyable
               :value="md5FileValue"
               :label="md5FileLabel"
-              mb-1
               class="w-full"
               :rows="smallRows"
+              mb-1
             />
           </div>
         </template>
@@ -435,17 +437,17 @@ const activeTab = ref(tabGroups.value[0]?.key ?? 'url');
                 v-if="pair[0]"
                 :value="pair[0].value"
                 :label="pair[0].label"
-                mb-1
                 class="w-full"
                 :rows="smallRows"
+                mb-1
               />
               <InputCopyable
                 v-if="pair[1]"
                 :value="pair[1].value"
                 :label="pair[1].label"
-                mb-1
                 class="w-full"
                 :rows="smallRows"
+                mb-1
               />
             </div>
           </div>

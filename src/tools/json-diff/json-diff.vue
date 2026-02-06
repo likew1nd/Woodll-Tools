@@ -41,23 +41,23 @@ const leftAst = ref<JsonNode | null>(null);
 const rightAst = ref<JsonNode | null>(null);
 const splitRatio = ref(0.5);
 
-type JsonNode = {
+interface JsonNode {
   type: 'object' | 'array' | 'string' | 'number' | 'boolean' | 'null'
   start: number
   end: number
   value?: unknown
   properties?: JsonProperty[]
   items?: JsonNode[]
-};
+}
 
-type JsonProperty = {
+interface JsonProperty {
   key: string
   keyStart: number
   keyEnd: number
   start: number
   end: number
   value: JsonNode
-};
+}
 
 function formatJson() {
   if (!hasInvalidJson.value) {
@@ -369,8 +369,12 @@ function updateSelection(side: 'left' | 'right', offset: number) {
         class="json-diff-header-labels"
         :style="{ '--left-ratio': `${Math.round(splitRatio * 100)}%` }"
       >
-        <div class="json-diff-header-left">{{ $t('tools.json-diff.leftLabel') }}</div>
-        <div class="json-diff-header-right">{{ $t('tools.json-diff.rightLabel') }}</div>
+        <div class="json-diff-header-left">
+          {{ $t('tools.json-diff.leftLabel') }}
+        </div>
+        <div class="json-diff-header-right">
+          {{ $t('tools.json-diff.rightLabel') }}
+        </div>
       </div>
       <c-button size="small" type="primary" class="json-diff-format" @click="formatJson">
         {{ $t('tools.json-diff.format') }}

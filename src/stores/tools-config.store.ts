@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
-import { buildDefaultToolsConfig, normalizeToolsConfig, type ToolsConfig } from '@/tools/tools-config';
+import { buildDefaultToolsConfig, normalizeToolsConfig } from '@/tools/tools-config';
+import type { ToolsConfig } from '@/tools/tools-config';
 
 export const useToolsConfigStore = defineStore('tools-config', () => {
   const defaultConfig = buildDefaultToolsConfig();

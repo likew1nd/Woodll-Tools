@@ -3,8 +3,6 @@ import InputCopyable from '../../components/InputCopyable.vue';
 import { convertBase } from './integer-base-converter.model';
 import { getErrorMessageIfThrows } from '@/utils/error';
 
-const { t } = useI18n();
-
 const inputProps = {
   'labelPosition': 'left',
   'labelWidth': '170px',
