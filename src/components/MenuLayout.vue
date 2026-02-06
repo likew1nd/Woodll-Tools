@@ -7,12 +7,12 @@ const siderPosition = computed(() => (isSmallScreen.value ? 'absolute' : 'static
 </script>
 
 <template>
-  <n-layout class="menu-layout-root">
+  <n-layout class="menu-layout-root" :content-style="{ overflow: 'hidden' }">
     <n-layout-header class="top-bar">
       <slot name="header" />
     </n-layout-header>
 
-    <n-layout has-sider class="layout-body">
+    <n-layout has-sider class="layout-body" :content-style="{ height: '100%', overflow: 'hidden' }">
       <n-layout-sider
         bordered
         collapse-mode="width"
@@ -25,7 +25,10 @@ const siderPosition = computed(() => (isSmallScreen.value ? 'absolute' : 'static
       >
         <slot name="sider" />
       </n-layout-sider>
-      <n-layout class="content">
+      <n-layout
+        class="content"
+        :content-style="{ padding: '26px', height: '100%', minHeight: '0' }"
+      >
         <slot name="content" />
         <div v-show="isSmallScreen && !isMenuCollapsed" class="overlay" @click="isMenuCollapsed = true" />
       </n-layout>
@@ -89,10 +92,33 @@ const siderPosition = computed(() => (isSmallScreen.value ? 'absolute' : 'static
     var(--app-content-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+}
 
-  ::v-deep(.n-layout-scroll-container) {
-    padding: 26px;
-  }
+.content :global(.n-layout-scroll-container) {
+  scrollbar-width: thin;
+  --content-scrollbar-track: color-mix(in srgb, var(--app-content-bg) 72%, transparent);
+  --content-scrollbar-thumb: color-mix(in srgb, var(--app-accent-primary) 72%, var(--app-glow));
+  --content-scrollbar-thumb-hover: color-mix(in srgb, var(--app-accent-primary) 88%, var(--app-glow));
+  scrollbar-color: var(--content-scrollbar-thumb) var(--content-scrollbar-track);
+}
+
+.content :global(.n-layout-scroll-container::-webkit-scrollbar) {
+  width: 8px;
+}
+
+.content :global(.n-layout-scroll-container::-webkit-scrollbar-track) {
+  background: var(--content-scrollbar-track);
+  border-radius: 999px;
+}
+
+.content :global(.n-layout-scroll-container::-webkit-scrollbar-thumb) {
+  background: linear-gradient(180deg, var(--content-scrollbar-thumb), var(--app-accent-primary));
+  border-radius: 999px;
+  border: 2px solid color-mix(in srgb, var(--content-scrollbar-track) 85%, transparent);
+}
+
+.content :global(.n-layout-scroll-container::-webkit-scrollbar-thumb:hover) {
+  background: linear-gradient(180deg, var(--content-scrollbar-thumb-hover), var(--app-accent-primary));
 }
 
 :global(.dark) .menu-layout .content {

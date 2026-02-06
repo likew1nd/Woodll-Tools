@@ -1,5 +1,67 @@
+<script lang="ts">
+// --- 静态常量定义（移出组件以提升性能）---
+// 将常量和缓存移至普通 script 块中，使其在组件实例间共享，避免重复创建和请求
+const CURRENCY_SYMBOL_MAP: Record<string, string> = {
+  USD: '$',
+  CNY: 'CNY ',
+  EUR: 'EUR ',
+  GBP: 'GBP ',
+  JPY: 'JPY ',
+  KRW: 'KRW ',
+  HKD: 'HKD ',
+  TWD: 'TWD ',
+  SGD: 'SGD ',
+  AUD: 'AUD ',
+  CAD: 'CAD ',
+  CHF: 'CHF ',
+};
+
+const BILLING_PERIOD_OPTIONS = [
+  { label: '年', value: 'year' },
+  { label: '月', value: 'month' },
+  { label: '季度', value: 'quarter' },
+  { label: '半年', value: 'half' },
+  { label: '三年', value: 'threeYear' },
+];
+
+const CORE_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 16, 24, 32].map(value => ({ label: `${value}C`, value }));
+const MEMORY_OPTIONS = [0.25, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 16, 32, 64, 128].map(value => ({ label: `${value}G`, value }));
+const DISK_OPTIONS = [20, 30, 40, 50, 100].map(value => ({ label: `${value}G`, value }));
+
+const PERIOD_DAYS_MAP: Record<string, number> = {
+  year: 365,
+  threeYear: 365 * 3,
+  half: 365 / 2,
+  quarter: 365 / 4,
+  month: 365 / 12,
+};
+
+const CURRENCY_OPTIONS = [
+  { label: 'USD - 美元', value: 'USD' },
+  { label: 'CNY - 人民币', value: 'CNY' },
+  { label: 'EUR - 欧元', value: 'EUR' },
+  { label: 'GBP - 英镑', value: 'GBP' },
+  { label: 'JPY - 日元', value: 'JPY' },
+  { label: 'KRW - 韩元', value: 'KRW' },
+  { label: 'HKD - 港币', value: 'HKD' },
+  { label: 'TWD - 台币', value: 'TWD' },
+  { label: 'SGD - 新加坡币', value: 'SGD' },
+  { label: 'AUD - 澳元', value: 'AUD' },
+  { label: 'CAD - 加元', value: 'CAD' },
+  { label: 'CHF - 瑞士法郎', value: 'CHF' },
+];
+
+const TRAFFIC_OPTIONS = ['2T', '1T', '500G', '300G', '250G', '200G', '100G'].map(value => ({ label: `${value}`, value }));
+const PORT_OPTIONS = ['1G', '2.5G', '10G',  '800M', '700M', '500M', '300M', '200M', '30M', '15M', '10M', '5M'].map(value => ({ label: `${value}`, value }));
+
+// 简单的内存缓存，避免重复请求（现在是全局共享的）
+const rateCache = new Map<string, { rate: number; time: number }>();
+const CACHE_DURATION = 1000 * 60 * 60; // 缓存 1 小时
+</script>
+
 <script setup lang="ts">
 import { differenceInCalendarDays, startOfDay, isValid, format } from 'date-fns';
+import { useStyleStore } from '../../stores/style.store';
 
 const { t } = useI18n();
 const message = useMessage();
@@ -15,60 +77,26 @@ const rateError = ref('');
 const isManualRate = ref(false);
 const billingPeriod = ref('year');
 const premiumPercent = ref(0);
+const premiumAmount = ref<number | null>(null);
+const isDiscount = ref(false);
+const productName = ref('');
+const cpuCores = ref<number | null>(null);
+const memoryGb = ref<number | null>(null);
+const diskGb = ref<number | string | null>(null);
+const trafficGb = ref<number | string | null>(null);
+const portMbps = ref<number | string | null>(null);
+const isTrafficBidirectional = ref(false);
 const endDate = ref<number | null>(null);
 const asOfDate = ref<number | null>(Date.now());
 const decimalPlaces = ref(1);
-const siteHost = computed(() => window.location.host);
+// 优化：不再使用 computed 监听 window.location.host，因为它不会变
+const siteHost = window.location.host;
 const previewUrl = ref('');
 const isPreviewOpen = ref(false);
 const lastPayloadKey = ref('');
 const lastShareMarkdown = ref('');
 
-const currencySymbolMap: Record<string, string> = {
-  USD: '$',
-  CNY: 'CNY ',
-  EUR: 'EUR ',
-  GBP: 'GBP ',
-  JPY: 'JPY ',
-  KRW: 'KRW ',
-  HKD: 'HKD ',
-  TWD: 'TWD ',
-  SGD: 'SGD ',
-  AUD: 'AUD ',
-  CAD: 'CAD ',
-  CHF: 'CHF ',
-};
-
-const billingPeriodOptions = [
-  { label: '年', value: 'year' },
-  { label: '三年', value: 'threeYear' },
-  { label: '半年', value: 'half' },
-  { label: '季度', value: 'quarter' },
-  { label: '月', value: 'month' },
-];
-
-const periodDaysMap: Record<string, number> = {
-  year: 365,
-  threeYear: 365 * 3,
-  half: 365 / 2,
-  quarter: 365 / 4,
-  month: 365 / 12,
-};
-
-const currencyOptions = [
-  { label: 'USD - 美元', value: 'USD' },
-  { label: 'CNY - 人民币', value: 'CNY' },
-  { label: 'EUR - 欧元', value: 'EUR' },
-  { label: 'GBP - 英镑', value: 'GBP' },
-  { label: 'JPY - 日元', value: 'JPY' },
-  { label: 'KRW - 韩元', value: 'KRW' },
-  { label: 'HKD - 港币', value: 'HKD' },
-  { label: 'TWD - 台币', value: 'TWD' },
-  { label: 'SGD - 新加坡币', value: 'SGD' },
-  { label: 'AUD - 澳元', value: 'AUD' },
-  { label: 'CAD - 加元', value: 'CAD' },
-  { label: 'CHF - 瑞士法郎', value: 'CHF' },
-];
+const styleStore = useStyleStore();
 
 const normalizedEnd = computed(() => {
   if (!endDate.value) return null;
@@ -76,7 +104,7 @@ const normalizedEnd = computed(() => {
   return isValid(date) ? date : null;
 });
 
-const periodDays = computed(() => periodDaysMap[billingPeriod.value] ?? 365);
+const periodDays = computed(() => PERIOD_DAYS_MAP[billingPeriod.value] ?? 365);
 
 const normalizedAsOf = computed(() => {
 
@@ -116,11 +144,6 @@ const totalPriceInSettlement = computed(() => {
   return totalPrice.value * appliedRate.value;
 });
 
-const premiumMultiplier = computed(() => {
-  const pct = Number(premiumPercent.value ?? 0);
-  if (!Number.isFinite(pct)) return 1;
-  return 1 + (pct / 100);
-});
 
 const dailyRate = computed(() => {
 
@@ -128,28 +151,77 @@ const dailyRate = computed(() => {
   return totalPriceInSettlement.value / (periodDays.value || 1);
 });
 
-
 const remainingBaseValue = computed(() => {
   if (dailyRate.value === null || remainingDays.value === null) return '';
   const value = dailyRate.value * remainingDays.value;
   return formatNumber(value);
 });
 
+const premiumPercentValue = computed(() => {
+  if (dailyRate.value === null || remainingDays.value === null) return 0;
+  const pct = Number(premiumPercent.value ?? 0);
+  if (!Number.isFinite(pct) || pct <= 0) return 0;
+  return dailyRate.value * remainingDays.value * (pct / 100);
+});
+
+const premiumAmountValue = computed(() => {
+  const amount = Number(premiumAmount.value ?? 0);
+  if (!Number.isFinite(amount) || amount <= 0) return 0;
+  return amount;
+});
+
+const adjustmentAmount = computed(() => premiumPercentValue.value + premiumAmountValue.value);
+
+const adjustmentSigned = computed(() => (isDiscount.value ? -1 : 1) * adjustmentAmount.value);
+
 const premiumValue = computed(() => {
-  if (dailyRate.value === null || remainingDays.value === null) return '';
-  const value = dailyRate.value * remainingDays.value * (Number(premiumPercent.value ?? 0) / 100);
-  return formatNumber(value);
+  if (!Number.isFinite(adjustmentAmount.value) || adjustmentAmount.value <= 0) return '';
+  return formatNumber(adjustmentAmount.value);
+});
+
+const premiumBadgeText = computed(() => {
+  if (!premiumValue.value) return '';
+  const label = isDiscount.value ? '折扣' : '溢价';
+  const sign = isDiscount.value ? ' -' : ' +';
+  return `${label}${sign}${premiumValue.value}`;
+});
+
+const premiumPercentLabel = computed(() => (isDiscount.value ? '折扣（%）' : t('tools.vps-remaining-value.premiumPercent')));
+const premiumAmountLabel = computed(() => (isDiscount.value ? '折扣金额' : '溢价金额'));
+
+const billingPeriodLabel = computed(() => {
+  const match = BILLING_PERIOD_OPTIONS.find(option => option.value === billingPeriod.value);
+  return match?.label ?? billingPeriod.value;
+});
+
+const configText = computed(() => {
+  const coreText = cpuCores.value ? `${cpuCores.value}C` : '--';
+  const memText = memoryGb.value ? `${memoryGb.value}G` : '--';
+  const diskText = diskGb.value !== null && diskGb.value !== '' ? `${diskGb.value}G` : '--';
+  return `${coreText} / ${memText} / ${diskText}`;
+});
+
+const trafficText = computed(() => {
+  const traffic = trafficGb.value !== null && trafficGb.value !== '' ? `${trafficGb.value}` : '--';
+  const port = portMbps.value !== null && portMbps.value !== '' ? `${portMbps.value}` : '--';
+  const modeText = isTrafficBidirectional.value ? ' 双 ' : ' 单';
+  //const trafficPart = `${traffic}（${modeText}） `;
+  const trafficPart = `${traffic}${modeText}`;  
+  if (isTrafficBidirectional.value) {
+    return `${trafficPart} / ${port}`;
+  }
+  return `${trafficPart} / ${port}`;
+});
+
+const renewalText = computed(() => {
+  if (totalPrice.value === null || !Number.isFinite(totalPrice.value)) return '--';
+  return `${formatNumber(totalPrice.value)} ${payCurrency.value}`;
 });
 
 const remainingValue = computed(() => {
   if (dailyRate.value === null || remainingDays.value === null) return '';
-  const value = dailyRate.value * remainingDays.value * premiumMultiplier.value;
-  return `${currencySymbol.value}${formatNumber(value)}`;
-});
-
-const usedValue = computed(() => {
-  if (dailyRate.value === null || remainingDays.value === null || totalDays.value === null) return '';
-  const value = dailyRate.value * (totalDays.value - remainingDays.value);
+  const base = dailyRate.value * remainingDays.value;
+  const value = base + adjustmentSigned.value;
   return `${currencySymbol.value}${formatNumber(value)}`;
 });
 
@@ -195,14 +267,71 @@ const serviceActive = computed(() => {
 });
 
 
+function buildPayload() {
+  return {
+    currencySymbol: currencySymbol.value,
+    remainingValue: remainingValue.value || '--',
+    remainingBaseValue: remainingBaseValue.value || '--',
+    premiumValue: premiumValue.value || '--',
+    discountMode: isDiscount.value,
+    productName: productName.value || '--',
+    configText: configText.value || '--',
+    trafficText: trafficText.value || '--',
+    billingPeriodLabel: billingPeriodLabel.value || '--',
+    renewalText: renewalText.value || '--',
+    remainingDays: remainingDays.value ?? '--',
+    formattedAsOf: formattedAsOf.value ?? '--',
+    formattedEnd: formattedEnd.value ?? '--',
+    providerHost: siteHost,
+    theme: styleStore.isDarkTheme ? 'dark' : 'light',
+    progress: progressPercent.value / 100,
+  };
+}
+
+async function fetchSvgUrl(payload: Record<string, unknown>) {
+  const res = await fetch('/api/vps-remaining-value/svg/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}`);
+  }
+  const data = await res.json();
+  const url = data?.url || (data?.path ? `${window.location.origin}${data.path}` : '');
+  if (!url) {
+    throw new Error('No URL');
+  }
+  return url;
+}
+
 async function openPreview() {
   if (!hasResult.value) {
     message.warning(t('tools.vps-remaining-value.noResult'));
     return;
   }
-  if (!previewUrl.value) {
-    await copySvgToClipboard();
+
+  const payload = buildPayload();
+  const payloadKey = JSON.stringify(payload);
+
+  if (payloadKey !== lastPayloadKey.value || !previewUrl.value) {
+    try {
+      previewUrl.value = await fetchSvgUrl(payload);
+      lastPayloadKey.value = payloadKey;
+    }
+    catch (err) {
+      const msg = err instanceof Error ? err.message : '';
+      if (msg.startsWith('HTTP')) {
+        message.error(`${t('tools.vps-remaining-value.copySvgFailed')} (${msg})`);
+      }
+      else {
+        message.error(t('tools.vps-remaining-value.copySvgBackend'));
+      }
+      return;
+    }
   }
+
   if (previewUrl.value) {
     isPreviewOpen.value = true;
   }
@@ -216,17 +345,7 @@ async function copySvgToClipboard() {
     message.warning(t('tools.vps-remaining-value.noResult'));
     return;
   }
-  const payload = {
-    currencySymbol: currencySymbol.value,
-    remainingValue: remainingValue.value || '--',
-    remainingValuePay: remainingValuePay.value || '--',
-    remainingBaseValue: remainingBaseValue.value || '--',
-    premiumValue: premiumValue.value || '--',
-    remainingDays: remainingDays.value ?? '--',
-    formattedAsOf: formattedAsOf.value ?? '--',
-    formattedEnd: formattedEnd.value ?? '--',
-    providerHost: siteHost.value,
-  };
+  const payload = buildPayload();
   const payloadKey = JSON.stringify(payload);
 
   if (payloadKey === lastPayloadKey.value && lastShareMarkdown.value) {
@@ -254,29 +373,7 @@ async function copySvgToClipboard() {
   }
 
   try {
-    let res: Response | null = null;
-    try {
-      res = await fetch('/api/vps-remaining-value/svg/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-    }
-    catch {
-      res = await fetch('http://localhost:3001/api/vps-remaining-value/svg/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-    }
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`);
-    }
-    const data = await res.json();
-    const url = data?.url || (data?.path ? `${window.location.origin}${data.path}` : '');
-    if (!url) {
-      throw new Error('No URL');
-    }
+    const url = await fetchSvgUrl(payload);
     previewUrl.value = url;
     const markdown = `![image](${url})`;
 
@@ -318,16 +415,22 @@ const invalidRange = computed(() => {
 watch(
   settleCurrency,
   (next) => {
-    currencySymbol.value = currencySymbolMap[next] ?? currencySymbol.value;
+    currencySymbol.value = CURRENCY_SYMBOL_MAP[next] ?? currencySymbol.value;
   },
   { immediate: true },
 );
 
-let rateRequestId = 0;
+let abortController: AbortController | null = null;
+
 async function fetchRealtimeRate() {
   rateError.value = '';
   rateStatus.value = 'loading';
-  const requestId = ++rateRequestId;
+  
+  // 取消上一次未完成的请求
+  if (abortController) {
+    abortController.abort();
+  }
+  abortController = new AbortController();
 
   if (payCurrency.value === settleCurrency.value) {
     realtimeRate.value = 1;
@@ -338,14 +441,28 @@ async function fetchRealtimeRate() {
     return;
   }
 
+  // 检查缓存
+  const cacheKey = `${payCurrency.value}-${settleCurrency.value}`;
+  const cached = rateCache.get(cacheKey);
+  if (cached && Date.now() - cached.time < CACHE_DURATION) {
+    realtimeRate.value = cached.rate;
+    if (!isManualRate.value) {
+      appliedRate.value = cached.rate;
+    }
+    rateStatus.value = 'success';
+    return;
+  }
+
   try {
-    const response = await fetch(`https://open.er-api.com/v6/latest/${payCurrency.value}`);
+    const response = await fetch(`https://open.er-api.com/v6/latest/${payCurrency.value}`, {
+      signal: abortController.signal,
+    });
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
     const data = await response.json();
     const rate = data?.rates?.[settleCurrency.value];
-    if (requestId != rateRequestId) return;
+    
     if (!rate || typeof rate !== 'number') {
       throw new Error('Rate not found');
     }
@@ -353,10 +470,11 @@ async function fetchRealtimeRate() {
     if (!isManualRate.value) {
       appliedRate.value = rate;
     }
+    rateCache.set(cacheKey, { rate, time: Date.now() });
     rateStatus.value = 'success';
   }
   catch (err) {
-    if (requestId != rateRequestId) return;
+    if (err instanceof Error && err.name === 'AbortError') return;
     rateStatus.value = 'error';
     rateError.value = err instanceof Error ? err.message : 'Unknown error';
   }
@@ -366,6 +484,13 @@ watch([payCurrency, settleCurrency], () => {
   isManualRate.value = false;
   fetchRealtimeRate();
 }, { immediate: true });
+
+// 组件销毁时取消未完成的请求，防止内存泄漏和报错
+onUnmounted(() => {
+  if (abortController) {
+    abortController.abort();
+  }
+});
 
 </script>
 
@@ -387,13 +512,103 @@ watch([payCurrency, settleCurrency], () => {
                 :value="realtimeRate ?? undefined"
                 :placeholder="t('tools.vps-remaining-value.realtimeRate')"
                 :disabled="rateStatus === 'loading'"
+                :input-props="{ autocomplete: 'off', 'data-lpignore': 'true' }"
                 readonly
               />
               <n-input-number
                 v-model:value="appliedRate"
                 :placeholder="t('tools.vps-remaining-value.appliedRate')"
                 min="0"
+                :input-props="{ autocomplete: 'off', 'data-lpignore': 'true' }"
                 @update:value="() => { isManualRate = true; }"
+              />
+            </div>
+          </div>
+           <div class="vps-field vps-field-row">
+            <div class="vps-row vps-row-head">
+              <div class="vps-label">{{ t('tools.vps-remaining-value.payCurrency') }}</div>
+              <div class="vps-label">{{ t('tools.vps-remaining-value.settleCurrency') }}</div>
+            </div>
+            <div class="vps-row">
+              <n-select
+                v-model:value="payCurrency"
+                :options="CURRENCY_OPTIONS"
+                :placeholder="t('tools.vps-remaining-value.payCurrency')"
+                class="vps-select vps-select-config"
+              />
+              
+              <n-select
+                v-model:value="settleCurrency"
+                :options="CURRENCY_OPTIONS"
+                :placeholder="t('tools.vps-remaining-value.settleCurrency')"
+                class="vps-select vps-select-config"
+              />
+            </div>
+          </div>
+          <div class="vps-field vps-field-row">
+            <div class="vps-label">品名</div>
+            <div class="vps-row vps-row-full">
+              <n-input
+                v-model:value="productName"
+                placeholder="输入品名"
+              />
+            </div>
+          </div>
+          <div class="vps-field vps-field-row">
+            <div class="vps-row vps-row-head vps-row-3 vps-row-config">
+              <div class="vps-label">CPU（可自定义）</div>
+              <div class="vps-label">内存（可自定义）</div>
+              <div class="vps-label">硬盘（可自定义）</div>
+            </div>
+            <div class="vps-row vps-row-3 vps-row-config">
+              <n-select
+                v-model:value="cpuCores"
+                :options="CORE_OPTIONS"
+                placeholder="选择核心"
+                filterable
+                tag
+                class="vps-select vps-select-config"
+              />
+              <n-select
+                v-model:value="memoryGb"
+                :options="MEMORY_OPTIONS"
+                placeholder="选择内存"
+                filterable
+                tag
+                class="vps-select"
+              />
+              <n-select
+                v-model:value="diskGb"
+                :options="DISK_OPTIONS"
+                placeholder="选择硬盘"
+                filterable
+                tag
+                class="vps-select"
+              />
+            </div>
+          </div>
+          <div class="vps-field vps-field-row">
+            <div class="vps-row vps-row-head">
+              <div class="vps-label">流量（可自定义）</div>
+              <div class="vps-label">网口速率（可自定义）</div>
+            </div>
+            <div class="vps-row vps-row-traffic">
+              <n-select
+                v-model:value="trafficGb"
+                :options="TRAFFIC_OPTIONS"
+                placeholder="流量"
+                filterable
+                tag
+                class="vps-select"
+              />
+              <n-checkbox v-model:checked="isTrafficBidirectional">双向</n-checkbox>
+              <n-select
+                v-model:value="portMbps"
+                :options="PORT_OPTIONS"
+                placeholder="速率"
+                filterable
+                tag
+                class="vps-select"
               />
             </div>
           </div>
@@ -408,31 +623,11 @@ watch([payCurrency, settleCurrency], () => {
                 v-model:value="totalPrice"
                 :placeholder="t('tools.vps-remaining-value.totalPrice')"
                 min="0"
+                :input-props="{ autocomplete: 'off', 'data-lpignore': 'true' }"
               />
               <n-select
                 v-model:value="billingPeriod"
-                :options="billingPeriodOptions"
-                class="vps-select"
-              />
-            </div>
-          </div>
-
-          <div class="vps-field vps-field-row">
-            <div class="vps-row vps-row-head">
-              <div class="vps-label">{{ t('tools.vps-remaining-value.payCurrency') }}</div>
-              <div class="vps-label">{{ t('tools.vps-remaining-value.settleCurrency') }}</div>
-            </div>
-            <div class="vps-row">
-              <n-select
-                v-model:value="payCurrency"
-                :options="currencyOptions"
-                :placeholder="t('tools.vps-remaining-value.payCurrency')"
-                class="vps-select"
-              />
-              <n-select
-                v-model:value="settleCurrency"
-                :options="currencyOptions"
-                :placeholder="t('tools.vps-remaining-value.settleCurrency')"
+                :options="BILLING_PERIOD_OPTIONS"
                 class="vps-select"
               />
             </div>
@@ -457,15 +652,26 @@ watch([payCurrency, settleCurrency], () => {
             </div>
           </div>
           <div class="vps-field vps-field-row">
-            <div class="vps-label">{{ t('tools.vps-remaining-value.premiumPercent') }}</div>
-            <div class="vps-row">
+            <div class="vps-row vps-row-head">
+              <div class="vps-label">{{ premiumPercentLabel }}</div>
+              <div class="vps-label">{{ premiumAmountLabel }}</div>
+            </div>
+            <div class="vps-row vps-row-3">
               <n-input-number
                 v-model:value="premiumPercent"
-                :placeholder="t('tools.vps-remaining-value.premiumPercent')"
+                :placeholder="premiumPercentLabel"
                 min="0"
                 max="1000"
+                :input-props="{ autocomplete: 'off', 'data-lpignore': 'true' }"
               />
-              <div />
+              <n-input-number
+                v-model:value="premiumAmount"
+                :placeholder="premiumAmountLabel"
+                min="0"
+                class="vps-premium-amount"
+                :input-props="{ autocomplete: 'off', 'data-lpignore': 'true' }"
+              />
+              <n-checkbox v-model:checked="isDiscount">折扣</n-checkbox>
             </div>
           </div>
           <n-alert v-if="invalidRange" type="warning" :show-icon="false">
@@ -491,19 +697,35 @@ watch([payCurrency, settleCurrency], () => {
         <div class="vps-result-main">
           <div class="vps-result-icon">$</div>
           <div class="vps-result-title">
-            {{ t('tools.vps-remaining-value.remainingValue') }}
+            <span class="vps-title-text">{{ t('tools.vps-remaining-value.remainingValue') }}</span>
+            <span v-if="premiumBadgeText" :class="['vps-premium-badge', isDiscount ? 'is-discount' : 'is-premium']">{{ premiumBadgeText }}</span>
           </div>
           <div class="vps-result-amount">
             {{ remainingValue || '--' }}
           </div>
-          <div class="vps-result-sub">
-            ≈ {{ remainingValuePay || '--' }}
+          <div class="vps-result-divider" />
+          <div class="vps-result-info">
+            <div class="vps-info-row">
+              <span class="vps-info-label">品名</span>
+              <span class="vps-info-value">{{ productName || '--' }}</span>
+            </div>
+            <div class="vps-info-row">
+              <span class="vps-info-label">配置</span>
+              <span class="vps-info-value">{{ configText }}</span>
+            </div>
+            <div class="vps-info-row">
+              <span class="vps-info-label">流量/网络速率</span>
+              <span class="vps-info-value">{{ trafficText }}</span>
+            </div>
+            <div class="vps-info-row">
+              <span class="vps-info-label">付费周期</span>
+              <span class="vps-info-value">{{ billingPeriodLabel }}</span>
+            </div>
+            <div class="vps-info-row">
+              <span class="vps-info-label">续费金额</span>
+              <span class="vps-info-value">{{ renewalText }}</span>
+            </div>
           </div>
-          <div class="vps-result-meta">
-            <span>{{ t('tools.vps-remaining-value.valueAssessment') }}</span>
-            <span>{{ t('tools.vps-remaining-value.lowValue') }}</span>
-          </div>
-          <n-progress :percentage="progressPercent" :show-indicator="false" />
         </div>
       </div>
 
@@ -585,8 +807,43 @@ watch([payCurrency, settleCurrency], () => {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 
+.vps-row-full {
+  grid-template-columns: 1fr;
+}
+
+.vps-row-3 {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.7fr) auto;
+  align-items: center;
+}
+
+.vps-row-config {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.vps-select-config {
+  min-width: 120px;
+}
+
+.vps-row-traffic {
+  grid-template-columns: minmax(0, 0.7fr) auto minmax(0, 1fr);
+  align-items: center;
+}
+
+.vps-select-traffic {
+  max-width: 160px;
+}
+
+.vps-premium-amount {
+  max-width: 200px;
+}
+
 .vps-row-head {
   margin-bottom: -2px;
+}
+
+.vps-row-head .vps-label {
+  justify-self: start;
+  text-align: left;
 }
 
 .vps-select {
@@ -661,6 +918,34 @@ watch([payCurrency, settleCurrency], () => {
 .vps-result-title {
   font-size: 16px;
   font-weight: 600;
+  display: inline-block;
+  position: relative;
+}
+
+.vps-premium-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.16);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  line-height: 1.4;
+  position: absolute;
+  left: 115%;
+  margin-left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+}
+
+.vps-premium-badge.is-discount {
+  background: rgba(56, 189, 248, 0.16);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.45);
+}
+.vps-title-text {
+  display: inline-block;
 }
 
 .vps-result-amount {
@@ -671,6 +956,38 @@ watch([payCurrency, settleCurrency], () => {
 
 .vps-result-sub {
   color: var(--app-text-muted);
+}
+
+.vps-result-info {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.vps-result-divider {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f43f5e, #f97316);
+  margin: 6px 0 2px;
+  opacity: 0.9;
+}
+
+.vps-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--app-text-muted);
+}
+
+.vps-info-label {
+  color: var(--app-text-muted);
+}
+
+.vps-info-value {
+  color: var(--app-text);
+  font-weight: 600;
 }
 
 .vps-result-breakdown {

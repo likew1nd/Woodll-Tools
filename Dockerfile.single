@@ -1,0 +1,27 @@
+# build stage
+FROM node:lts-alpine AS build-stage
+ENV NPM_CONFIG_LOGLEVEL warn
+ENV CI true
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm && pnpm i --frozen-lockfile
+COPY . .
+RUN pnpm build
+
+# runtime stage (nginx + php-fpm in one container)
+FROM php:8.2-fpm-alpine AS runtime
+RUN apk add --no-cache nginx supervisor \
+    && mkdir -p /run/nginx /var/log/supervisor
+
+WORKDIR /var/www/html
+COPY --from=build-stage /app/dist /var/www/html
+COPY server/php /var/www/html/api
+COPY nginx.single.conf /etc/nginx/nginx.conf
+COPY supervisord.conf /etc/supervisord.conf
+
+# writable paths for sqlite + uploads
+RUN mkdir -p /var/www/html/data /var/www/html/uploads \
+    && chown -R www-data:www-data /var/www/html/data /var/www/html/uploads
+
+EXPOSE 80
+CMD ["supervisord", "-c", "/etc/supervisord.conf"]

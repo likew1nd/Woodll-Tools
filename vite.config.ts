@@ -115,7 +115,7 @@ export default defineConfig({
       allow: [projectRoot],
     },
     proxy: {
-      '/api': 'http://localhost:3001',
+      '/api': 'http://localhost:8000',
     },
   },
   test: {

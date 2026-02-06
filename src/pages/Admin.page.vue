@@ -72,6 +72,7 @@ const activeCategoryId = ref(sortedCategories.value[0]?.id ?? UNCATEGORIZED_ID);
 const newCategoryName = ref('');
 
 const toolRows = ref<typeof toolMeta.value>([]);
+const categoryRows = ref<CategoryConfig[]>([]);
 
 function rebuildToolRows() {
   toolRows.value = toolMeta.value
@@ -81,12 +82,24 @@ function rebuildToolRows() {
     );
 }
 
+function rebuildCategoryRows() {
+  categoryRows.value = [...config.value.categories]
+    .filter(category => category.id !== UNCATEGORIZED_ID)
+    .sort((a, b) => a.order - b.order);
+}
+
 watch(
   [
     activeCategoryId,
     () => config.value.tools.map(tool => `${tool.path}:${tool.categoryId}:${tool.order}`).join('|'),
   ],
   rebuildToolRows,
+  { immediate: true },
+);
+
+watch(
+  () => config.value.categories.map(category => `${category.id}:${category.order}`).join('|'),
+  rebuildCategoryRows,
   { immediate: true },
 );
 
@@ -138,6 +151,7 @@ const categoriesWithUncategorized = computed(() => (
     ? sortedCategories.value
     : [...sortedCategories.value, { id: UNCATEGORIZED_ID, order: Number.MAX_SAFE_INTEGER, enabled: true }]
 ));
+const activeCategory = computed(() => categoriesWithUncategorized.value.find(category => category.id === activeCategoryId.value));
 
 watch(
   hasUncategorizedCategory,
@@ -166,6 +180,8 @@ function addCategory() {
   });
   newCategoryName.value = '';
   activeCategoryId.value = name;
+  ensureUncategorizedLast();
+  rebuildCategoryRows();
 }
 
 function renameCategory(categoryId: string, nextId: string) {
@@ -213,6 +229,8 @@ function deleteCategory(categoryId: string) {
   if (activeCategoryId.value === categoryId) {
     activeCategoryId.value = UNCATEGORIZED_ID;
   }
+  ensureUncategorizedLast();
+  rebuildCategoryRows();
 }
 
 function updateToolOrder() {
@@ -220,6 +238,21 @@ function updateToolOrder() {
     const configItem = getToolConfig(tool.path, tool.defaultCategoryId);
     configItem.order = index;
   });
+}
+
+function updateCategoryOrder() {
+  categoryRows.value.forEach((category, index) => {
+    const configItem = getCategoryConfig(category.id);
+    configItem.order = index;
+  });
+  ensureUncategorizedLast();
+}
+
+function ensureUncategorizedLast() {
+  if (hasUncategorizedCategory.value) {
+    const uncategorized = getCategoryConfig(UNCATEGORIZED_ID);
+    uncategorized.order = Number.MAX_SAFE_INTEGER;
+  }
 }
 
 async function loadConfig() {
@@ -242,6 +275,7 @@ async function loadConfig() {
     if (!categoryIds.has(UNCATEGORIZED_ID)) {
       activeCategoryId.value = config.value.categories[0]?.id ?? UNCATEGORIZED_ID;
     }
+    ensureUncategorizedLast();
   }
   catch (err) {
     message.error(err instanceof Error ? err.message : '加载失败');
@@ -478,13 +512,39 @@ onMounted(loadSiteConfig);
               </n-button>
             </div>
 
-            <n-tabs v-model:value="activeCategoryId" type="line" animated>
-              <n-tab-pane
-                v-for="category in categoriesWithUncategorized"
-                :key="category.id"
-                :name="category.id"
-                :tab="category.id === UNCATEGORIZED_ID ? t('tools.categories.uncategorized') : t(`tools.categories.${category.id.toLowerCase()}`, category.id)"
+            <div class="category-tabs">
+              <Draggable
+                v-model="categoryRows"
+                item-key="id"
+                class="category-tabs-list"
+                ghost-class="ghost-tools-draggable"
+                handle=".category-drag-handle"
+                @end="updateCategoryOrder"
               >
+                <template #item="{ element: category }">
+                  <div
+                    class="category-tab"
+                    :class="{ active: activeCategoryId === category.id }"
+                    @click="activeCategoryId = category.id"
+                  >
+                    <n-icon class="category-drag-handle" :component="IconDragDrop" size="14" />
+                    <span>
+                      {{ t(`tools.categories.${category.id.toLowerCase()}`, category.id) }}
+                    </span>
+                  </div>
+                </template>
+              </Draggable>
+              <div
+                class="category-tab category-tab-uncategorized"
+                :class="{ active: activeCategoryId === UNCATEGORIZED_ID }"
+                @click="activeCategoryId = UNCATEGORIZED_ID"
+              >
+                {{ t('tools.categories.uncategorized') }}
+              </div>
+            </div>
+
+            <div class="category-panels">
+              <div v-if="activeCategory">
                 <n-table :bordered="true" :single-line="false">
                   <thead>
                     <tr>
@@ -506,31 +566,31 @@ onMounted(loadSiteConfig);
                     <tr>
                       <td>
                         <n-input
-                          :value="category.id"
-                          :disabled="category.id === UNCATEGORIZED_ID"
+                          :value="activeCategory.id"
+                          :disabled="activeCategory.id === UNCATEGORIZED_ID"
                           placeholder="分类名称"
-                          @update:value="value => renameCategory(category.id, value)"
+                          @update:value="value => renameCategory(activeCategory.id, value)"
                         />
                       </td>
                       <td>
                         <n-input-number
-                          v-model:value="getCategoryConfig(category.id).order"
+                          v-model:value="getCategoryConfig(activeCategory.id).order"
                           :min="0"
-                          :disabled="category.id === UNCATEGORIZED_ID"
+                          :disabled="activeCategory.id === UNCATEGORIZED_ID"
                         />
                       </td>
                       <td>
                         <n-switch
-                          v-model:value="getCategoryConfig(category.id).enabled"
-                          :disabled="category.id === UNCATEGORIZED_ID"
+                          v-model:value="getCategoryConfig(activeCategory.id).enabled"
+                          :disabled="activeCategory.id === UNCATEGORIZED_ID"
                         />
                       </td>
                       <td>
                         <n-button
                           tertiary
                           type="error"
-                          :disabled="category.id === UNCATEGORIZED_ID"
-                          @click="deleteCategory(category.id)"
+                          :disabled="activeCategory.id === UNCATEGORIZED_ID"
+                          @click="deleteCategory(activeCategory.id)"
                         >
                           删除
                         </n-button>
@@ -600,8 +660,8 @@ onMounted(loadSiteConfig);
                     </template>
                   </Draggable>
                 </n-table>
-              </n-tab-pane>
-            </n-tabs>
+              </div>
+            </div>
           </n-card>
 
           <div class="actions">
@@ -709,5 +769,46 @@ onMounted(loadSiteConfig);
   display: flex;
   gap: 12px;
   margin-bottom: 12px;
+}
+
+.category-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.category-tabs-list {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.category-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(148, 163, 184, 0.12);
+  color: inherit;
+  cursor: pointer;
+  user-select: none;
+}
+
+.category-tab.active {
+  background: rgba(59, 130, 246, 0.22);
+  color: #60a5fa;
+}
+
+.category-tab-uncategorized {
+  margin-left: auto;
+}
+
+.category-drag-handle {
+  cursor: grab;
+  color: #94a3b8;
 }
 </style>

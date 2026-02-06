@@ -56,7 +56,10 @@ router.beforeEach(async (to) => {
   }
 
   const toolsConfigStore = useToolsConfigStore();
-  await toolsConfigStore.fetchConfig();
+  // 优化：仅在配置未加载时请求，防止路由切换或参数变化时重复请求导致死循环
+  if (!toolsConfigStore.hasLoaded) {
+    await toolsConfigStore.fetchConfig();
+  }
 
   const currentConfig = toolsConfigStore.config ?? defaultConfig;
   const toolConfig = currentConfig.tools.find(tool => tool.path === to.path);
