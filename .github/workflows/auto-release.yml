@@ -7,8 +7,6 @@ on:
 
 permissions:
   contents: write
-  issues: write
-  pull-requests: write
 
 jobs:
   release:
@@ -19,42 +17,67 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Get latest tag
+        id: last_tag
+        run: |
+          TAG=$(git tag -l "v*" --sort=-v:refname | head -n 1)
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Compute next version
+        id: version
+        run: |
+          node -e "const tag=process.env.LAST_TAG||'';let v='1.0.0';if(tag){const t=tag.replace(/^v/,'');const parts=t.split('.').map(n=>parseInt(n,10));if(parts.length===3&&!parts.some(Number.isNaN)){parts[2]+=1;v=parts.join('.');}}console.log('version='+v);" >> $GITHUB_OUTPUT
+        env:
+          LAST_TAG: ${{ steps.last_tag.outputs.tag }}
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          LAST_TAG="${{ steps.last_tag.outputs.tag }}"
+          if [ -n "$LAST_TAG" ]; then
+            RANGE="$LAST_TAG..HEAD"
+          else
+            RANGE="HEAD"
+          fi
+          NOTES=$(git log $RANGE --pretty=format:'- %s (%h)')
+          if [ -z "$NOTES" ]; then
+            NOTES='- 自动发布'
+          fi
+          EOF=$(openssl rand -hex 8)
+          echo "notes<<$EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 20
-
-      - name: Semantic Release
-        id: semrel
-        uses: cycjimmy/semantic-release-action@v4
-        with:
-          extra_plugins: |
-            @semantic-release/commit-analyzer
-            @semantic-release/release-notes-generator
-            @semantic-release/github
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          cache: 'pnpm'
 
       - name: Enable Corepack
-        if: steps.semrel.outputs.new_release_published == 'true'
         run: corepack enable
 
       - name: Install dependencies
-        if: steps.semrel.outputs.new_release_published == 'true'
         run: pnpm i --frozen-lockfile
 
       - name: Build
-        if: steps.semrel.outputs.new_release_published == 'true'
         run: pnpm build
 
       - name: Zip dist
-        if: steps.semrel.outputs.new_release_published == 'true'
-        run: zip -r woodll-tools-${{ steps.semrel.outputs.new_release_version }}.zip dist/*
+        run: zip -r woodll-tools-${{ steps.version.outputs.version }}.zip dist/*
 
-      - name: Upload asset to release
-        if: steps.semrel.outputs.new_release_published == 'true'
+      - name: Create release and upload asset
         uses: softprops/action-gh-release@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: v${{ steps.semrel.outputs.new_release_version }}
-          files: woodll-tools-${{ steps.semrel.outputs.new_release_version }}.zip
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          body: |
+            ## 变更说明
+
+            ${{ steps.notes.outputs.notes }}
+
+            ## 资源
+
+            - `woodll-tools-${{ steps.version.outputs.version }}.zip`
+          files: woodll-tools-${{ steps.version.outputs.version }}.zip
