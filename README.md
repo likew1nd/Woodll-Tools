@@ -84,6 +84,5 @@ volumes:
 
 如需本地开发或自定义，请自行安装依赖并启动开发环境。
 
-## License
 
-[GNU GPLv3](LICENSE)
+
