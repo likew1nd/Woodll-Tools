@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterView, useRoute } from 'vue-router';
-import { NGlobalStyle, NMessageProvider, NNotificationProvider, darkTheme, zhCN, dateZhCN } from 'naive-ui';
+import { NGlobalStyle, NMessageProvider, NNotificationProvider, darkTheme, dateZhCN, zhCN } from 'naive-ui';
 import { useHead } from '@vueuse/head';
 import { storeToRefs } from 'pinia';
 import { darkThemeOverrides, lightThemeOverrides } from './themes';
@@ -30,13 +30,13 @@ syncRef(
 
 // --- 新增：全局防崩溃补丁 ---
 // 拦截浏览器扩展（如 LastPass, Bitwarden 等）引起的 DOM 错误，防止页面白屏或自动刷新
-const suppressExtensionError = (event: ErrorEvent | PromiseRejectionEvent) => {
+function suppressExtensionError(event: ErrorEvent | PromiseRejectionEvent) {
   const msg = event instanceof ErrorEvent ? event.message : (event.reason instanceof Error ? event.reason.message : String(event.reason));
-  if (msg && (msg.includes("insertBefore") || msg.includes("child of this node"))) {
+  if (msg && (msg.includes('insertBefore') || msg.includes('child of this node'))) {
     event.preventDefault();
     console.warn('已拦截浏览器扩展引起的 DOM 错误，防止页面崩溃');
   }
-};
+}
 
 onMounted(() => {
   toolsConfigStore.fetchConfig();

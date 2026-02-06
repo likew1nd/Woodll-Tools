@@ -1,21 +1,20 @@
 <script setup lang="ts">
-import { h, defineComponent } from 'vue';
-import { IconBrandGithub, IconBrandX, IconInfoCircle, IconMoon, IconSun } from '@tabler/icons-vue';
+import { defineComponent, h } from 'vue';
+import { IconMoon, IconSun } from '@tabler/icons-vue';
 import { useStyleStore } from '@/stores/style.store';
 
 const styleStore = useStyleStore();
 const { isDarkTheme } = toRefs(styleStore);
 
-const wrapIcon = (IconComponent: any) => defineComponent({
-  name: 'WrappedTablerIcon',
-  render: () => h(IconComponent),
-});
+function wrapIcon(IconComponent: any) {
+  return defineComponent({
+    name: 'WrappedTablerIcon',
+    render: () => h(IconComponent),
+  });
+}
 
 const IconSunWrapped = wrapIcon(IconSun);
 const IconMoonWrapped = wrapIcon(IconMoon);
-const IconBrandGithubWrapped = wrapIcon(IconBrandGithub);
-const IconBrandXWrapped = wrapIcon(IconBrandX);
-const IconInfoCircleWrapped = wrapIcon(IconInfoCircle);
 </script>
 
 <template>

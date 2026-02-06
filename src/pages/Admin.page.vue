@@ -141,10 +141,6 @@ function getToolCategoryId(path: string, defaultCategoryId: string) {
   return exists ? categoryId : UNCATEGORIZED_ID;
 }
 
-const filteredTools = computed(() => toolMeta.value.filter(tool =>
-  getToolCategoryId(tool.path, tool.defaultCategoryId) === activeCategoryId.value,
-));
-
 const hasUncategorizedCategory = computed(() => config.value.categories.some(category => category.id === UNCATEGORIZED_ID));
 const categoriesWithUncategorized = computed(() => (
   hasUncategorizedCategory.value
@@ -633,29 +629,29 @@ onMounted(loadSiteConfig);
                         <td>
                           <n-icon class="drag-handle" :component="IconDragDrop" size="18" />
                         </td>
-                      <td>
-                        <div>
-                          {{ tool.title }}
-                        </div>
-                        <div class="path">
-                          {{ tool.path }}
-                        </div>
-                      </td>
-                      <td>
-                        <n-select
-                          v-model:value="getToolConfig(tool.path, tool.defaultCategoryId).categoryId"
-                          :options="categoryOptionsWithUncategorized"
-                        />
-                      </td>
-                      <td>
-                        <n-input-number v-model:value="getToolConfig(tool.path, tool.defaultCategoryId).order" :min="0" />
-                      </td>
-                      <td>
-                        <n-switch v-model:value="getToolConfig(tool.path, tool.defaultCategoryId).featured" />
-                      </td>
-                      <td>
-                        <n-switch v-model:value="getToolConfig(tool.path, tool.defaultCategoryId).enabled" />
-                      </td>
+                        <td>
+                          <div>
+                            {{ tool.title }}
+                          </div>
+                          <div class="path">
+                            {{ tool.path }}
+                          </div>
+                        </td>
+                        <td>
+                          <n-select
+                            v-model:value="getToolConfig(tool.path, tool.defaultCategoryId).categoryId"
+                            :options="categoryOptionsWithUncategorized"
+                          />
+                        </td>
+                        <td>
+                          <n-input-number v-model:value="getToolConfig(tool.path, tool.defaultCategoryId).order" :min="0" />
+                        </td>
+                        <td>
+                          <n-switch v-model:value="getToolConfig(tool.path, tool.defaultCategoryId).featured" />
+                        </td>
+                        <td>
+                          <n-switch v-model:value="getToolConfig(tool.path, tool.defaultCategoryId).enabled" />
+                        </td>
                       </tr>
                     </template>
                   </Draggable>

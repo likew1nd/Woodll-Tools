@@ -9,8 +9,13 @@ const props = withDefaults(defineProps<{ toolsByCategory?: ToolCategory[] }>(), 
 const { toolsByCategory } = toRefs(props);
 const route = useRoute();
 
-const makeLabel = (tool: Tool) => () => h(RouterLink, { to: tool.path }, { default: () => tool.name });
-const makeIcon = (tool: Tool) => () => h(MenuIconItem, { tool });
+function makeLabel(tool: Tool) {
+  return () => h(RouterLink, { to: tool.path }, { default: () => tool.name });
+}
+
+function makeIcon(tool: Tool) {
+  return () => h(MenuIconItem, { tool });
+}
 
 const collapsedCategories = useStorage<Record<string, boolean>>(
   'menu-tool-option:collapsed-categories',
@@ -121,7 +126,6 @@ function updateMeasurements() {
     nextPositions[name] = offsetTop - scrollTopValue.value;
   });
   headerPositions.value = nextPositions;
-
 }
 
 function scheduleBottomStackHide() {
@@ -169,7 +173,7 @@ function scrollToCategory(name: string) {
   }
 
   const doScroll = () => {
-    const desiredTop = getOffsetTopToContainer(target, container) ;
+    const desiredTop = getOffsetTopToContainer(target, container);
     container.scrollTo({ top: Math.max(desiredTop, 0), behavior: 'smooth' });
   };
 
@@ -223,12 +227,11 @@ watch(
     });
   },
 );
-
 </script>
 
 <template>
   <div ref="menuRoot" class="tool-menu">
-    <div v-for="{ name, tools, isCollapsed } of menuOptions" :key="name" class="category-block" :ref="setHeaderRef(name)">
+    <div v-for="{ name, tools, isCollapsed } of menuOptions" :key="name" :ref="setHeaderRef(name)" class="category-block">
       <div class="category-header" @click="toggleCategoryCollapse({ name })">
         <span class="category-chevron" :class="{ 'rotate-0': isCollapsed, 'rotate-90': !isCollapsed }">
           <icon-mdi-chevron-right />
@@ -260,7 +263,7 @@ watch(
       v-if="bottomStackCategories.length > 0"
       class="category-bottom-stack-wrapper"
       :class="{ 'is-hidden': !showBottomStack }"
-      :style="siderRect ? { left: `${siderRect.left }px`, width: `${Math.max(siderRect.width - 100, 200)}px` } : undefined"
+      :style="siderRect ? { left: `${siderRect.left}px`, width: `${Math.max(siderRect.width - 100, 200)}px` } : undefined"
     >
       <div ref="bottomStackRef" class="category-bottom-stack">
         <button

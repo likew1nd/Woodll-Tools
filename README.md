@@ -46,9 +46,27 @@
 ### Nginx 必需配置（否则 /admin 会 404）
 
 ```nginx
-location / {
-  try_files $uri $uri/ /index.html;
+location /api/ {
+  try_files $uri $uri/ /api/index.php?$query_string;
 }
+```
+
+## Docker Compose 一键部署
+
+保存为 `docker-compose.yml`，然后执行 `docker compose up -d` 即可运行。
+
+```yaml
+version: "3.8"
+
+services:
+  woodll-tools:
+    image: ghcr.io/likew1nd/woodll-tools:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./data:/var/www/html/data
+      - ./uploads:/var/www/html/uploads
+    restart: unless-stopped
 ```
 
 ## 开发与自定义（可选）
