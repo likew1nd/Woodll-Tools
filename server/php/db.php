@@ -54,6 +54,18 @@ function get_db(): PDO {
         updated_at TEXT
     )');
 
+    $pdo->exec('CREATE TABLE IF NOT EXISTS vps_share (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        owner_key TEXT NOT NULL,
+        token TEXT NOT NULL UNIQUE,
+        payload_json TEXT NOT NULL,
+        product_name TEXT,
+        status TEXT NOT NULL DEFAULT \'active\',
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+    )');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_vps_share_owner_key ON vps_share(owner_key)');
+
     $columns = $pdo->query("PRAGMA table_info(site_config)")->fetchAll(PDO::FETCH_ASSOC);
     $columnNames = array_map(static fn($column) => $column['name'], $columns);
     $missingColumns = [

@@ -1728,9 +1728,9 @@ tools:
     days: 天
     serviceActive: 服务有效中
     serviceExpired: 服务已到期
-    copySvg: 复制分享代码
+    copySvg: 🔗复制分享代码
     copySvgSuccess: 已复制分享代码到剪贴板
-    previewSvg: 查看图片
+    previewSvg: 🖼️查看分享图片
     previewTitle: 图片预览
     previewMissing: 暂无可预览的图片，请先复制生成
     noResult: 请先填写有效数据并计算出结果

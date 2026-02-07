@@ -9,6 +9,35 @@ $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 $path = $path ?: '/';
 
+if (($path === '/share/vps' || $path === '/share/vps.svg' || strpos($path, '/share/vps/') === 0) && $method === 'GET') {
+    $token = $_GET['token'] ?? '';
+    if (!$token && preg_match('#^/share/vps/([a-f0-9]+)\.svg$#i', $path, $matches)) {
+        $token = $matches[1];
+    }
+    if (!$token) {
+        http_response_code(400);
+        echo 'Missing token';
+        exit;
+    }
+
+    $stmt = $pdo->prepare('SELECT payload_json, status FROM vps_share WHERE token = ?');
+    $stmt->execute([$token]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$row) {
+        http_response_code(404);
+        echo 'Not found';
+        exit;
+    }
+
+    $payload = json_decode($row['payload_json'], true);
+    if (!is_array($payload)) {
+        $payload = [];
+    }
+    $payload['sold'] = ($row['status'] ?? 'active') === 'sold';
+    $svg = build_vps_svg($payload);
+    output_svg($svg);
+}
+
 if (strpos($path, '/api/') !== 0) {
     json_response(['error' => 'Not found'], 404);
 }
@@ -23,6 +52,7 @@ function escape_xml($value): string {
 function build_vps_svg(array $payload): string {
     $theme = (string) ($payload['theme'] ?? 'light');
     $isDark = $theme === 'dark';
+    $isSold = (bool) ($payload['sold'] ?? false);
     $palette = [
         'bgStart' => $isDark ? '#0f172a' : '#fdf2f8',
         'bgEnd' => $isDark ? '#111827' : '#eef2ff',
@@ -54,6 +84,7 @@ function build_vps_svg(array $payload): string {
     $premiumY = 208;
     $badgeColor = $discountMode ? '#38bdf8' : '#ef4444';
     $premiumBadge = build_premium_badge_svg($showPremium, $premiumX, $premiumY, $premiumWidth, $premiumLabel, $badgeColor);
+    $soldStamp = build_sold_stamp_svg($isSold);
     $remainingDays = escape_xml($payload['remainingDays'] ?? '--');
     $formattedAsOf = escape_xml($payload['formattedAsOf'] ?? '--');
     $formattedEnd = escape_xml($payload['formattedEnd'] ?? '--');
@@ -63,12 +94,13 @@ function build_vps_svg(array $payload): string {
     $trafficText = escape_xml($payload['trafficText'] ?? '--');
     $billingPeriodLabel = escape_xml($payload['billingPeriodLabel'] ?? '--');
     $renewalText = escape_xml($payload['renewalText'] ?? '--');
+    $remark = escape_xml($payload['remark'] ?? '--');
     $progress = (float) ($payload['progress'] ?? 0);
     $safeProgress = max(0, min(1, $progress));
 
     return <<<SVG
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="600" height="780" viewBox="0 0 600 780">
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="810" viewBox="0 0 600 810">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="{$palette['bgStart']}"/>
@@ -79,8 +111,8 @@ function build_vps_svg(array $payload): string {
       <stop offset="100%" stop-color="#f97316"/>
     </linearGradient>
   </defs>
-  <rect width="600" height="780" rx="28" fill="url(#bg)"/>
-  <rect x="40" y="40" width="520" height="460" rx="22" fill="{$palette['cardBg']}" stroke="{$palette['cardStroke']}"/>
+  <rect width="600" height="810" rx="28" fill="url(#bg)"/>
+  <rect x="40" y="40" width="520" height="480" rx="22" fill="{$palette['cardBg']}" stroke="{$palette['cardStroke']}"/>
   <rect x="240" y="80" width="120" height="120" rx="24" fill="{$palette['iconGreen']}"/>
   <text x="300" y="155" text-anchor="middle" font-size="48" fill="#ffffff" font-family="sans-serif">{$currencySymbol}</text>
   <text x="300" y="230" text-anchor="middle" font-size="22" fill="{$palette['panelText']}" font-family="sans-serif">剩余价值</text>
@@ -97,19 +129,22 @@ function build_vps_svg(array $payload): string {
   <text x="520" y="448" text-anchor="end" font-size="15" font-weight="600" fill="{$palette['panelText']}" font-family="sans-serif">{$billingPeriodLabel}</text>
   <text x="80" y="476" font-size="13" fill="{$palette['mutedText']}" font-family="sans-serif">续费金额</text>
   <text x="520" y="476" text-anchor="end" font-size="15" font-weight="600" fill="{$palette['panelText']}" font-family="sans-serif">{$renewalText}</text>
+  <text x="80" y="504" font-size="13" fill="{$palette['mutedText']}" font-family="sans-serif">备注</text>
+  <text x="520" y="504" text-anchor="end" font-size="15" font-weight="600" fill="{$palette['panelText']}" font-family="sans-serif">{$remark}</text>
+  {$soldStamp}
 
-  <rect x="40" y="520" width="520" height="220" rx="22" fill="{$palette['timeCardBg']}" stroke="{$palette['timeCardStroke']}"/>
-  <circle cx="90" cy="580" r="26" fill="{$palette['timeIconBg']}"/>
-  <text x="90" y="588" text-anchor="middle" font-size="18" fill="{$palette['timeIconText']}" font-family="sans-serif">🕙︎</text>
-  <text x="140" y="580" font-size="20" fill="{$palette['panelText']}" font-family="sans-serif">剩余时间</text>
-  <text x="140" y="610" font-size="14" fill="{$palette['mutedText']}" font-family="sans-serif">到期于 {$formattedEnd}</text>
-  <text x="520" y="590" text-anchor="end" font-size="42" fill="{$palette['timeNumber']}" font-weight="700" font-family="sans-serif">{$remainingDays}</text>
-  <text x="520" y="620" text-anchor="end" font-size="14" fill="{$palette['mutedText']}" font-family="sans-serif">天</text>
-  <rect x="80" y="658" width="440" height="20" rx="10" fill="{$palette['barBg']}"/>
-  <rect x="80" y="658" width="{440 * $safeProgress}" height="20" rx="10" fill="{$palette['barFill']}"/>
-  <text x="80" y="710" font-size="14" fill="{$palette['mutedText']}" font-family="sans-serif">{$formattedAsOf}</text>
-  <text x="520" y="710" text-anchor="end" font-size="14" fill="{$palette['mutedText']}" font-family="sans-serif">{$formattedEnd}</text>
-  <text x="300" y="770" text-anchor="middle" font-size="12" fill="{$palette['mutedText']}" font-family="sans-serif">由 {$providerHost} 提供</text>
+  <rect x="40" y="540" width="520" height="220" rx="22" fill="{$palette['timeCardBg']}" stroke="{$palette['timeCardStroke']}"/>
+  <circle cx="90" cy="600" r="26" fill="{$palette['timeIconBg']}"/>
+  <text x="90" y="608" text-anchor="middle" font-size="18" fill="{$palette['timeIconText']}" font-family="sans-serif">⏱</text>
+  <text x="140" y="600" font-size="20" fill="{$palette['panelText']}" font-family="sans-serif">剩余时间</text>
+  <text x="140" y="630" font-size="14" fill="{$palette['mutedText']}" font-family="sans-serif">到期于 {$formattedEnd}</text>
+  <text x="520" y="610" text-anchor="end" font-size="42" fill="{$palette['timeNumber']}" font-weight="700" font-family="sans-serif">{$remainingDays}</text>
+  <text x="520" y="640" text-anchor="end" font-size="14" fill="{$palette['mutedText']}" font-family="sans-serif">天</text>
+  <rect x="80" y="678" width="440" height="20" rx="10" fill="{$palette['barBg']}"/>
+  <rect x="80" y="678" width="{440 * $safeProgress}" height="20" rx="10" fill="{$palette['barFill']}"/>
+  <text x="80" y="730" font-size="14" fill="{$palette['mutedText']}" font-family="sans-serif">{$formattedAsOf}</text>
+  <text x="520" y="730" text-anchor="end" font-size="14" fill="{$palette['mutedText']}" font-family="sans-serif">{$formattedEnd}</text>
+  <text x="300" y="790" text-anchor="middle" font-size="12" fill="{$palette['mutedText']}" font-family="sans-serif">由 {$providerHost} 提供</text>
 </svg>
 SVG;
 }
@@ -144,6 +179,19 @@ function build_premium_badge_svg(bool $show, int $x, int $y, int $width, string 
         $color,
         $safeLabel
     );
+}
+
+function build_sold_stamp_svg(bool $show): string {
+    if (!$show) {
+        return '';
+    }
+    $label = '已售';
+    return <<<SVG
+  <g transform="translate(300 350) rotate(-20)" opacity="0.7">
+    <rect x="-155" y="-90" width="310" height="156" rx="6" fill="none" stroke="#ef4444" stroke-width="10"/>
+    <text x="0" y="18" text-anchor="middle" font-size="100" font-weight="800" fill="#ef4444" font-family="sans-serif">{$label}</text>
+  </g>
+SVG;
 }
 
 if ($route === '/auth/login' && $method === 'POST') {
@@ -300,6 +348,76 @@ if ($route === '/site-config/logo' && $method === 'POST') {
   $stmt->execute([$logoUrl, gmdate('c')]);
 
   json_response(['logoUrl' => $logoUrl]);
+}
+
+if ($route === '/vps-remaining-value/share' && $method === 'POST') {
+    $body = read_json_body();
+    $ownerKey = trim((string) ($body['ownerKey'] ?? ''));
+    $payload = $body['payload'] ?? null;
+    $productName = trim((string) ($body['productName'] ?? ''));
+
+    if ($ownerKey === '' || !is_array($payload)) {
+        json_response(['error' => 'Invalid payload'], 400);
+    }
+
+    unset($payload['sold']);
+
+    $token = bin2hex(random_bytes(16));
+    $now = gmdate('c');
+    $stmt = $pdo->prepare('INSERT INTO vps_share (owner_key, token, payload_json, product_name, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)');
+    $stmt->execute([
+        $ownerKey,
+        $token,
+        json_encode($payload, JSON_UNESCAPED_UNICODE),
+        $productName,
+        'active',
+        $now,
+        $now,
+    ]);
+    $id = (int) $pdo->lastInsertId();
+
+    $scheme = 'http';
+    if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+        $scheme = $_SERVER['HTTP_X_FORWARDED_PROTO'];
+    }
+    else if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        $scheme = 'https';
+    }
+    $host = $_SERVER['HTTP_HOST'] ?? ($_SERVER['SERVER_NAME'] ?? 'localhost');
+    $shareUrl = $scheme . '://' . $host . '/share/vps/' . $token . '.svg';
+
+    json_response(['id' => $id, 'token' => $token, 'shareUrl' => $shareUrl, 'ownerKey' => $ownerKey]);
+}
+
+if ($route === '/vps-remaining-value/history' && $method === 'GET') {
+    $ownerKey = trim((string) ($_GET['owner_key'] ?? ''));
+    if ($ownerKey === '') {
+        json_response(['error' => 'Missing owner_key'], 400);
+    }
+
+    $stmt = $pdo->prepare('SELECT id, token, product_name, status, created_at FROM vps_share WHERE owner_key = ? ORDER BY id DESC');
+    $stmt->execute([$ownerKey]);
+    $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    json_response(['items' => $items]);
+}
+
+if ($route === '/vps-remaining-value/mark-sold' && $method === 'POST') {
+    $body = read_json_body();
+    $ownerKey = trim((string) ($body['ownerKey'] ?? ''));
+    $id = (int) ($body['id'] ?? 0);
+    $status = ($body['status'] ?? 'sold') === 'active' ? 'active' : 'sold';
+
+    if ($ownerKey === '' || $id <= 0) {
+        json_response(['error' => 'Invalid payload'], 400);
+    }
+
+    $stmt = $pdo->prepare('UPDATE vps_share SET status = ?, updated_at = ? WHERE id = ? AND owner_key = ?');
+    $stmt->execute([$status, gmdate('c'), $id, $ownerKey]);
+    if ($stmt->rowCount() === 0) {
+        json_response(['error' => 'Not found'], 404);
+    }
+
+    json_response(['ok' => true]);
 }
 
 if ($route === '/vps-remaining-value/svg' && ($method === 'POST' || $method === 'GET')) {

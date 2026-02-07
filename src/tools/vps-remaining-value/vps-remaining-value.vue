@@ -68,6 +68,8 @@ const CACHE_DURATION = 1000 * 60 * 60;
 const { t } = useI18n();
 const message = useMessage();
 
+const OWNER_KEY_STORAGE = 'vpsShareOwnerKey';
+
 const totalPrice = ref<number | null>(null);
 const currencySymbol = ref('CNY ');
 const payCurrency = ref('USD');
@@ -82,8 +84,8 @@ const premiumPercent = ref(0);
 const premiumAmount = ref<number | null>(null);
 const isDiscount = ref(false);
 const productName = ref('');
-const cpuCores = ref<number | null>(null);
-const memoryGb = ref<number | null>(null);
+const cpuCores = ref<number | string | null>(null);
+const memoryGb = ref<number | string | null>(null);
 const diskGb = ref<number | string | null>(null);
 const trafficGb = ref<number | string | null>(null);
 const portMbps = ref<number | string | null>(null);
@@ -97,6 +99,20 @@ const previewUrl = ref('');
 const isPreviewOpen = ref(false);
 const lastPayloadKey = ref('');
 const lastShareMarkdown = ref('');
+const lastPreviewKey = ref('');
+const historyItems = ref<Array<{ id: number; token: string; product_name: string | null; status: string; created_at: string }>>([]);
+const historyLoading = ref(false);
+const historyPage = ref(1);
+const historyPageSize = 6;
+const ownerKey = ref(localStorage.getItem(OWNER_KEY_STORAGE) || '');
+const remark = ref('');
+const historyPreviewUrl = ref('');
+const isHistoryPreviewOpen = ref(false);
+const historyPreviewLoading = ref(false);
+const activeResultTab = ref('标签展示');
+let historyPreviewObjectUrl: string | null = null;
+
+let previewObjectUrl: string | null = null;
 
 const styleStore = useStyleStore();
 
@@ -145,6 +161,24 @@ function formatNumber(value: number | null) {
   }
   const digits = Math.max(0, Math.min(8, Number(decimalPlaces.value ?? 2)));
   return value.toFixed(digits);
+}
+
+function generateOwnerKey() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map(byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+function setOwnerKey(value: string) {
+  ownerKey.value = value;
+  localStorage.setItem(OWNER_KEY_STORAGE, value);
+}
+
+function ensureOwnerKey() {
+  if (!ownerKey.value) {
+    setOwnerKey(generateOwnerKey());
+  }
+  return ownerKey.value;
 }
 
 const totalPriceInSettlement = computed(() => {
@@ -213,7 +247,7 @@ const premiumAmountLabel = computed(() => (isDiscount.value ? '折扣金额' : '
 
 const billingPeriodLabel = computed(() => {
   const match = BILLING_PERIOD_OPTIONS.find(option => option.value === billingPeriod.value);
-  return match?.label ?? billingPeriod.value;
+  return match ? match.label : '--';
 });
 
 const configText = computed(() => {
@@ -281,6 +315,144 @@ const formattedEnd = computed(() => {
   return format(normalizedEnd.value, 'yyyy-MM-dd');
 });
 
+function getWeightedLength(value: string) {
+  let length = 0;
+  for (const char of value) {
+    length += char.charCodeAt(0) > 255 ? 2 : 1;
+  }
+  return length;
+}
+
+function trimToWeightedLength(value: string, max: number) {
+  let length = 0;
+  let result = '';
+  for (const char of value) {
+    const weight = char.charCodeAt(0) > 255 ? 2 : 1;
+    if (length + weight > max) {
+      break;
+    }
+    result += char;
+    length += weight;
+  }
+  return result;
+}
+
+function onRemarkInput(value: string) {
+  remark.value = trimToWeightedLength(value ?? '', 40);
+}
+
+function onProductNameInput(value: string) {
+  productName.value = trimToWeightedLength(value ?? '', 40);
+}
+
+function sanitizeAlphaNum(value: string, max: number) {
+  const normalized = (value ?? '').toString().replace(/[^0-9a-zA-Z]/g, '');
+  return normalized.slice(0, max);
+}
+
+function sanitizeNumeric(value: number | string | null, maxDigits: number) {
+  const raw = (value ?? '').toString();
+  const cleaned = raw.replace(/[^0-9.]/g, '');
+  const firstDot = cleaned.indexOf('.');
+  const normalized = firstDot === -1
+    ? cleaned
+    : `${cleaned.slice(0, firstDot)}.${cleaned.slice(firstDot + 1).replace(/\./g, '')}`;
+  let digits = 0;
+  let result = '';
+  for (const char of normalized) {
+    if (char === '.') {
+      if (!result.includes('.') && result.length > 0) {
+        result += '.';
+      }
+      continue;
+    }
+    if (digits >= maxDigits) {
+      break;
+    }
+    result += char;
+    digits += 1;
+  }
+  return result ? Number(result) : null;
+}
+
+watch(trafficGb, (value) => {
+  if (typeof value !== 'string') {
+    return;
+  }
+  const next = sanitizeAlphaNum(value, 6);
+  if (next !== value) {
+    trafficGb.value = next;
+  }
+});
+
+watch(premiumPercent, (value) => {
+  const next = sanitizeNumeric(value, 6);
+  if (next !== value) {
+    premiumPercent.value = next ?? 0;
+  }
+});
+
+watch(premiumAmount, (value) => {
+  const next = sanitizeNumeric(value, 8);
+  if (next !== value) {
+    premiumAmount.value = next;
+  }
+});
+
+watch(totalPrice, (value) => {
+  const next = sanitizeNumeric(value, 8);
+  if (next !== value) {
+    totalPrice.value = next;
+  }
+});
+
+watch(cpuCores, (value) => {
+  if (typeof value !== 'string') {
+    return;
+  }
+  const next = sanitizeAlphaNum(value, 6);
+  if (next !== value) {
+    cpuCores.value = next;
+  }
+});
+
+watch(memoryGb, (value) => {
+  if (typeof value !== 'string') {
+    return;
+  }
+  const next = sanitizeAlphaNum(value, 6);
+  if (next !== value) {
+    memoryGb.value = next;
+  }
+});
+
+watch(diskGb, (value) => {
+  if (typeof value !== 'string') {
+    return;
+  }
+  const next = sanitizeAlphaNum(value, 6);
+  if (next !== value) {
+    diskGb.value = next;
+  }
+});
+
+watch(portMbps, (value) => {
+  if (typeof value !== 'string') {
+    return;
+  }
+  const next = sanitizeAlphaNum(value, 6);
+  if (next !== value) {
+    portMbps.value = next;
+  }
+});
+
+const historyPageCount = computed(() => Math.max(1, Math.ceil(historyItems.value.length / historyPageSize)));
+
+const pagedHistoryItems = computed(() => {
+  const start = (historyPage.value - 1) * historyPageSize;
+  return historyItems.value.slice(start, start + historyPageSize);
+});
+
 function buildPayload() {
   return {
     currencySymbol: currencySymbol.value,
@@ -293,17 +465,18 @@ function buildPayload() {
     trafficText: trafficText.value || '--',
     billingPeriodLabel: billingPeriodLabel.value || '--',
     renewalText: renewalText.value || '--',
+    remark: remark.value || '--',
     remainingDays: remainingDays.value ?? '--',
-    formattedAsOf: formattedAsOf.value ?? '--',
-    formattedEnd: formattedEnd.value ?? '--',
+    formattedAsOf: formattedAsOf.value || '--',
+    formattedEnd: formattedEnd.value || '--',
     providerHost: siteHost,
     theme: styleStore.isDarkTheme ? 'dark' : 'light',
     progress: progressPercent.value / 100,
   };
 }
 
-async function fetchSvgUrl(payload: Record<string, unknown>) {
-  const res = await fetch('/api/vps-remaining-value/svg/save', {
+async function fetchPreviewUrl(payload: Record<string, unknown>) {
+  const res = await fetch('/api/vps-remaining-value/svg', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -312,12 +485,57 @@ async function fetchSvgUrl(payload: Record<string, unknown>) {
   if (!res.ok) {
     throw new Error(`HTTP ${res.status}`);
   }
+  const svgText = await res.text();
+  const blob = new Blob([svgText], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+  return url;
+}
+
+async function fetchSvgObjectUrl(url: string) {
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}`);
+  }
+  const svgText = await res.text();
+  const blob = new Blob([svgText], { type: 'image/svg+xml' });
+  return URL.createObjectURL(blob);
+}
+
+function toLocalShareUrl(shareUrl: string) {
+  if (!shareUrl) {
+    return '';
+  }
+  try {
+    const parsed = new URL(shareUrl, window.location.origin);
+    const token = parsed.searchParams.get('token');
+    if (token) {
+      return `${window.location.origin}/share/vps/${token}.svg`;
+    }
+    return `${window.location.origin}${parsed.pathname}${parsed.search}`;
+  }
+  catch {
+    return shareUrl.startsWith('/') ? `${window.location.origin}${shareUrl}` : shareUrl;
+  }
+}
+
+async function createShareLink(payload: Record<string, unknown>) {
+  const res = await fetch('/api/vps-remaining-value/share', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ownerKey: ensureOwnerKey(),
+      payload,
+      productName: productName.value,
+    }),
+  });
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}`);
+  }
   const data = await res.json();
-  const url = data?.url || (data?.path ? `${window.location.origin}${data.path}` : '');
-  if (!url) {
+  if (!data?.shareUrl || !data?.token) {
     throw new Error('No URL');
   }
-  return url;
+  return data as { shareUrl: string; token: string };
 }
 
 async function openPreview() {
@@ -328,29 +546,69 @@ async function openPreview() {
 
   const payload = buildPayload();
   const payloadKey = JSON.stringify(payload);
+  let shareUrl = '';
 
-  if (payloadKey !== lastPayloadKey.value || !previewUrl.value) {
-    try {
-      previewUrl.value = await fetchSvgUrl(payload);
-      lastPayloadKey.value = payloadKey;
-    }
-    catch (err) {
-      const msg = err instanceof Error ? err.message : '';
-      if (msg.startsWith('HTTP')) {
-        message.error(`${t('tools.vps-remaining-value.copySvgFailed')} (${msg})`);
+  try {
+    if (payloadKey !== lastPayloadKey.value || !lastShareMarkdown.value) {
+      const result = await createShareLink(payload);
+      shareUrl = result.shareUrl;
+      const markdown = `![image](${shareUrl})`;
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(markdown);
       }
       else {
-        message.error(t('tools.vps-remaining-value.copySvgBackend'));
+        const textarea = document.createElement('textarea');
+        textarea.value = markdown;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        textarea.remove();
       }
-      return;
+      lastPayloadKey.value = payloadKey;
+      lastShareMarkdown.value = markdown;
+      await loadHistory();
+    }
+    else {
+      shareUrl = lastShareMarkdown.value.replace('![image](', '').replace(')', '');
     }
   }
+  catch (err) {
+    const msg = err instanceof Error ? err.message : '';
+    if (msg.startsWith('HTTP')) {
+      message.error(`${t('tools.vps-remaining-value.copySvgFailed')} (${msg})`);
+    }
+    else {
+      message.error(t('tools.vps-remaining-value.copySvgBackend'));
+    }
+    return;
+  }
 
-  if (previewUrl.value) {
+  if (!shareUrl) {
+    message.warning(t('tools.vps-remaining-value.previewMissing'));
+    return;
+  }
+
+  if (previewObjectUrl) {
+    URL.revokeObjectURL(previewObjectUrl);
+    previewObjectUrl = null;
+  }
+  try {
+    const localShareUrl = toLocalShareUrl(shareUrl);
+    previewUrl.value = await fetchSvgObjectUrl(localShareUrl);
+    previewObjectUrl = previewUrl.value;
+    lastPreviewKey.value = payloadKey;
     isPreviewOpen.value = true;
   }
-  else {
-    message.warning(t('tools.vps-remaining-value.previewMissing'));
+  catch (err) {
+    const msg = err instanceof Error ? err.message : '';
+    if (msg.startsWith('HTTP')) {
+      message.error(`${t('tools.vps-remaining-value.copySvgFailed')} (${msg})`);
+    }
+    else {
+      message.error(t('tools.vps-remaining-value.copySvgBackend'));
+    }
   }
 }
 
@@ -387,9 +645,8 @@ async function copySvgToClipboard() {
   }
 
   try {
-    const url = await fetchSvgUrl(payload);
-    previewUrl.value = url;
-    const markdown = `![image](${url})`;
+    const result = await createShareLink(payload);
+    const markdown = `![image](${result.shareUrl})`;
 
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(markdown);
@@ -409,6 +666,7 @@ async function copySvgToClipboard() {
     lastShareMarkdown.value = markdown;
 
     message.success(t('tools.vps-remaining-value.copySvgSuccess'));
+    await loadHistory();
   }
   catch (err) {
     const msg = err instanceof Error ? err.message : '';
@@ -421,6 +679,149 @@ async function copySvgToClipboard() {
   }
 }
 
+async function loadHistory() {
+  if (!ownerKey.value) {
+    message.warning('需要管理码');
+    return;
+  }
+  if (status === 'sold' && !window.confirm('???????')) {
+    return;
+  }
+  historyLoading.value = true;
+  try {
+    const res = await fetch(`/api/vps-remaining-value/history?owner_key=${encodeURIComponent(ownerKey.value)}`);
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    historyItems.value = Array.isArray(data?.items) ? data.items : [];
+    const maxPage = Math.max(1, Math.ceil(historyItems.value.length / historyPageSize));
+    historyPage.value = Math.min(Math.max(1, historyPage.value), maxPage);
+  }
+  catch {
+    message.error('获取历史失败');
+  }
+  finally {
+    historyLoading.value = false;
+  }
+}
+
+async function markSold(itemId: number, status: 'sold' | 'active' = 'sold') {
+  if (!ownerKey.value) {
+    message.warning('需要管理码');
+    return;
+  }
+  try {
+    const res = await fetch('/api/vps-remaining-value/mark-sold', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ownerKey: ownerKey.value, id: itemId, status }),
+    });
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    await loadHistory();
+  }
+  catch {
+    message.error('更新状态失败');
+  }
+}
+
+async function copyShareLink(token: string) {
+  const url = `${window.location.origin}/share/vps/${token}.svg`;
+  const markdown = `![image](${url})`;
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(markdown);
+    }
+    else {
+      const textarea = document.createElement('textarea');
+      textarea.value = markdown;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      textarea.remove();
+    }
+    message.success('链接已复制');
+  }
+  catch {
+    message.error('复制失败');
+  }
+}
+
+async function openShareLink(token: string) {
+  if (!token) {
+    message.warning('缺少分享标识');
+    return;
+  }
+  const url = `${window.location.origin}/share/vps/${token}.svg`;
+  historyPreviewLoading.value = true;
+  historyPreviewUrl.value = '';
+  isHistoryPreviewOpen.value = true;
+  try {
+    if (historyPreviewObjectUrl) {
+      URL.revokeObjectURL(historyPreviewObjectUrl);
+      historyPreviewObjectUrl = null;
+    }
+    historyPreviewObjectUrl = await fetchSvgObjectUrl(url);
+    historyPreviewUrl.value = historyPreviewObjectUrl;
+  }
+  catch {
+    message.error('图片加载失败');
+  }
+  finally {
+    historyPreviewLoading.value = false;
+  }
+}
+
+async function copyOwnerKey() {
+  if (!ownerKey.value) {
+    message.warning('需要管理码');
+    return;
+  }
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(ownerKey.value);
+    }
+    else {
+      const textarea = document.createElement('textarea');
+      textarea.value = ownerKey.value;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      textarea.remove();
+    }
+    message.success('管理码已复制');
+  }
+  catch {
+    message.error('复制失败');
+  }
+}
+
+function applyOwnerKey() {
+  const key = ownerKey.value.trim();
+  if (!key) {
+    message.warning('需要管理码');
+    return;
+  }
+  setOwnerKey(key);
+  loadHistory();
+}
+
+function formatHistoryDate(value: string | null | undefined) {
+  if (!value) {
+    return '--';
+  }
+  if (value.length >= 10) {
+    return value.slice(0, 10);
+  }
+  return value;
+}
+
 const invalidRange = computed(() => {
   if (!normalizedAsOf.value || !normalizedEnd.value) {
     return false;
@@ -431,7 +832,7 @@ const invalidRange = computed(() => {
 watch(
   settleCurrency,
   (next) => {
-    currencySymbol.value = CURRENCY_SYMBOL_MAP[next] ?? currencySymbol.value;
+    currencySymbol.value = CURRENCY_SYMBOL_MAP[next] ? currencySymbol.value: CURRENCY_SYMBOL_MAP[next];
   },
   { immediate: true },
 );
@@ -504,9 +905,31 @@ watch([payCurrency, settleCurrency], () => {
 }, { immediate: true });
 
 // 组件销毁时取消未完成的请求，防止内存泄漏和报错
+onMounted(() => {
+  if (ownerKey.value) {
+    loadHistory();
+  }
+});
+
+watch(isHistoryPreviewOpen, (open) => {
+  if (!open && historyPreviewObjectUrl) {
+    URL.revokeObjectURL(historyPreviewObjectUrl);
+    historyPreviewObjectUrl = null;
+    historyPreviewUrl.value = '';
+  }
+});
+
 onUnmounted(() => {
   if (abortController) {
     abortController.abort();
+  }
+  if (previewObjectUrl) {
+    URL.revokeObjectURL(previewObjectUrl);
+    previewObjectUrl = null;
+  }
+  if (historyPreviewObjectUrl) {
+    URL.revokeObjectURL(historyPreviewObjectUrl);
+    historyPreviewObjectUrl = null;
   }
 });
 </script>
@@ -530,7 +953,7 @@ onUnmounted(() => {
             </div>
             <div class="vps-row">
               <n-input-number
-                :value="realtimeRate ?? undefined"
+                :value="realtimeRate"
                 :placeholder="t('tools.vps-remaining-value.realtimeRate')"
                 :disabled="rateStatus === 'loading'"
                 :input-props="{ 'autocomplete': 'off', 'data-lpignore': 'true' }"
@@ -577,8 +1000,10 @@ onUnmounted(() => {
             <div class="vps-row vps-row-full">
               <n-input
                 v-model:value="productName"
-                placeholder="输入品名"
+                @update:value="onProductNameInput"
+                placeholder="VPS 产品名称"
               />
+
             </div>
           </div>
           <div class="vps-field vps-field-row">
@@ -727,6 +1152,21 @@ onUnmounted(() => {
               </n-checkbox>
             </div>
           </div>
+          <div class="vps-field vps-field-row">
+            <div class="vps-row vps-row-head">
+              <div class="vps-label">
+                备注
+              </div>
+            </div>
+            <div class="vps-row vps-row-full">
+              <n-input
+                v-model:value="remark"
+                @update:value="onRemarkInput"
+                placeholder="最多40个字符"
+              />
+
+            </div>
+          </div>
           <n-alert v-if="invalidRange" type="warning" :show-icon="false">
             {{ t('tools.vps-remaining-value.invalidRange') }}
           </n-alert>
@@ -735,92 +1175,186 @@ onUnmounted(() => {
     </div>
 
     <div class="vps-result">
-      <div class="vps-result-actions">
-        <n-button class="vps-action-btn" type="primary" secondary @click="copySvgToClipboard">
-          {{ t('tools.vps-remaining-value.copySvg') }}
-        </n-button>
-        <n-button class="vps-action-btn" type="info" secondary @click="openPreview">
-          {{ t('tools.vps-remaining-value.previewSvg') }}
-        </n-button>
-      </div>
-      <div class="vps-result-card">
-        <!-- <div class="vps-result-header">
-          {{ t('tools.vps-remaining-value.resultTitle') }}
-        </div> -->
-        <div class="vps-result-main">
-          <div class="vps-result-icon">
-            $
-          </div>
-          <div class="vps-result-title">
-            <span class="vps-title-text">{{ t('tools.vps-remaining-value.remainingValue') }}</span>
-            <span v-if="premiumBadgeText" class="vps-premium-badge" :class="[isDiscount ? 'is-discount' : 'is-premium']">{{ premiumBadgeText }}</span>
-          </div>
-          <div class="vps-result-amount">
-            {{ remainingValue || '--' }}
-          </div>
-          <div class="vps-result-divider" />
-          <div class="vps-result-info">
-            <div class="vps-info-row">
-              <span class="vps-info-label">品名</span>
-              <span class="vps-info-value">{{ productName || '--' }}</span>
-            </div>
-            <div class="vps-info-row">
-              <span class="vps-info-label">配置</span>
-              <span class="vps-info-value">{{ configText }}</span>
-            </div>
-            <div class="vps-info-row">
-              <span class="vps-info-label">流量/网络速率</span>
-              <span class="vps-info-value">{{ trafficText }}</span>
-            </div>
-            <div class="vps-info-row">
-              <span class="vps-info-label">付费周期</span>
-              <span class="vps-info-value">{{ billingPeriodLabel }}</span>
-            </div>
-            <div class="vps-info-row">
-              <span class="vps-info-label">续费金额</span>
-              <span class="vps-info-value">{{ renewalText }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      
+      <n-tabs v-model:value="activeResultTab" type="segment" class="vps-result-tabs">
+        
+        <n-tab-pane name="标签展示" :title="t('tools.vps-remaining-value.remainingValue')">
+          
+          <div class="vps-result-tab-pane">
 
-      <div class="vps-time-card">
-        <div class="vps-time-left">
-          <div class="vps-time-icon">
-            🕙︎
-          </div>
-          <div>
-            <div class="vps-time-title">
-              {{ t('tools.vps-remaining-value.remainingTime') }}
+            <div class="vps-result-card">
+              <div class="vps-result-main">
+                <div class="vps-result-icon">
+                  $
+                </div>
+                <div class="vps-result-title">
+                  <span class="vps-title-text">{{ t('tools.vps-remaining-value.remainingValue') }}</span>
+                  <span v-if="premiumBadgeText" class="vps-premium-badge" :class="[isDiscount ? 'is-discount' : 'is-premium']">{{ premiumBadgeText }}</span>
+                </div>
+                <div class="vps-result-amount">
+                  {{ remainingValue || '--' }}
+                </div>
+                <div class="vps-result-divider" />
+                
+                <div class="vps-result-info">
+                  <div class="vps-info-row">
+                    <span class="vps-info-label">&#x54c1;&#x540d;</span>
+                    <span class="vps-info-value">{{ productName || '--' }}</span>
+                  </div>
+                  <div class="vps-info-row">
+                    <span class="vps-info-label">&#x914d;&#x7f6e;</span>
+                    <span class="vps-info-value">{{ configText }}</span>
+                  </div>
+                  <div class="vps-info-row">
+                    <span class="vps-info-label">&#x6d41;&#x91cf;/&#x7f51;&#x7edc;&#x901f;&#x7387;</span>
+                    <span class="vps-info-value">{{ trafficText }}</span>
+                  </div>
+                  <div class="vps-info-row">
+                    <span class="vps-info-label">&#x4ed8;&#x8d39;&#x5468;&#x671f;</span>
+                    <span class="vps-info-value">{{ billingPeriodLabel }}</span>
+                  </div>
+                  <div class="vps-info-row">
+                    <span class="vps-info-label">&#x7eed;&#x8d39;&#x91d1;&#x989d;</span>
+                    <span class="vps-info-value">{{ renewalText }}</span>
+                    </div>
+                  <div class="vps-info-row">
+                    <span class="vps-info-label">备注</span>
+                    <span class="vps-info-value">{{ remark || '--' }}</span>
+                  </div>
+                  </div>
+                  
+                                                                   </div>
+                                                                   <div class="vps-result-actions">
+                                    <n-button class="vps-action-btn" type="primary" secondary @click="copySvgToClipboard">
+                                      {{ t('tools.vps-remaining-value.copySvg') }}
+                                    </n-button>
+                                    <n-button class="vps-action-btn" type="info" secondary @click="openPreview">
+                                      {{ t('tools.vps-remaining-value.previewSvg') }}
+                                    </n-button>
+                                  </div>   
+                                                                 </div>
+                    
+                              <div class="vps-time-card">
+                                <div class="vps-time-left">
+                                  <div class="vps-time-icon">&#x23f1;</div>
+                                  <div>                  <div class="vps-time-title">
+                    {{ t('tools.vps-remaining-value.remainingTime') }}
+                  </div>
+                  <div class="vps-time-sub">
+                    {{ t('tools.vps-remaining-value.untilDate') }} {{ formattedEnd }}
+                  </div>
+                </div>
+              </div>
+              <div class="vps-time-right">
+                <div class="vps-time-days">
+                  {{ remainingDays ?? '--' }}
+                </div>
+                <div class="vps-time-unit">
+                  {{ t('tools.vps-remaining-value.days') }}
+                </div>
+              </div>
+              <div class="vps-time-range">
+                <span>{{ formattedAsOf }}</span>
+                <span>{{ formattedEnd }}</span>
+              </div>
+              <div class="vps-site-footer">
+                &#x7531; {{ siteHost }} &#x63d0;&#x4f9b;
+              </div>
             </div>
-            <div class="vps-time-sub">
-              {{ t('tools.vps-remaining-value.untilDate') }} {{ formattedEnd }}
+          </div>
+        </n-tab-pane>
+        <n-tab-pane name="历史记录" title="历史记录">
+          <div class="vps-result-tab-pane">
+            <div class="vps-history-card">
+              <div class="vps-history-header">
+                <div class="vps-history-title">&#x5386;&#x53f2;&#x8bb0;&#x5f55;</div>
+                <n-button size="small" secondary :loading="historyLoading" @click="loadHistory">
+                  &#x5237;&#x65b0;
+                </n-button>
+              </div>
+              <div class="vps-history-owner">
+                <n-input
+                  v-model:value="ownerKey"
+                  placeholder="&#x7ba1;&#x7406;&#x7801;"
+                  class="vps-owner-input"
+                />
+                <n-button size="small" @click="applyOwnerKey">
+                  &#x4f7f;&#x7528;
+                </n-button>
+                <n-button size="small" tertiary @click="copyOwnerKey">
+                  &#x590d;&#x5236;
+                </n-button>
+              </div>
+              <div v-if="!historyItems.length" class="vps-history-empty">
+                &#x6682;&#x65e0;&#x5386;&#x53f2;&#x8bb0;&#x5f55;
+              </div>
+              <div v-else class="vps-history-list">
+                <div v-for="item in pagedHistoryItems" :key="item.id" class="vps-history-item">
+                  <div class="vps-history-top">
+                    <div class="vps-history-name">
+                      {{ item.product_name || '--' }}
+                    </div>
+                    <div class="vps-history-meta">
+                      {{ formatHistoryDate(item.created_at) }}
+                    </div>
+                  </div>
+                  <div class="vps-history-bottom">
+                    <div class="vps-history-status" :class="item.status === 'sold' ? 'is-sold' : 'is-active'">
+                      {{ item.status === 'sold' ? '\u5df2\u552e' : '\u5f85\u552e' }}
+                    </div>
+                    <div class="vps-history-actions">
+                      <n-button size="tiny" @click="copyShareLink(item.token)">
+                        &#x590d;&#x5236;&#x94fe;&#x63a5;
+                      </n-button>
+                      <n-button size="tiny" secondary @click="openShareLink(item.token)">
+                        &#x67e5;&#x770b;&#x56fe;&#x7247;
+                      </n-button>
+                    <n-popconfirm
+                      :disabled="item.status === 'sold'"
+                      positive-text="确认"
+                      negative-text="取消"
+                      @positive-click="markSold(item.id, 'sold')"
+                    >
+                      <template #trigger>
+                        <n-button size="tiny" type="error" secondary :disabled="item.status === 'sold'">
+                          &#x6807;&#x8bb0;&#x5df2;&#x552e;
+                        </n-button>
+                      </template>
+                      确认标记已售？
+                    </n-popconfirm>
+                  </div>
+                </div>
+              </div>
+              </div>
+              <n-pagination
+                v-if="historyItems.length > historyPageSize"
+                v-model:page="historyPage"
+                :page-count="historyPageCount"
+                :page-size="historyPageSize"
+                size="small"
+                class="vps-history-pagination"
+              />
             </div>
           </div>
-        </div>
-        <div class="vps-time-right">
-          <div class="vps-time-days">
-            {{ remainingDays ?? '--' }}
-          </div>
-          <div class="vps-time-unit">
-            {{ t('tools.vps-remaining-value.days') }}
-          </div>
-        </div>
-        <div class="vps-time-range">
-          <span>{{ formattedAsOf }}</span>
-          <span>{{ formattedEnd }}</span>
-        </div>
-        <div class="vps-site-footer">
-          由 {{ siteHost }} 提供
-        </div>
-      </div>
+        </n-tab-pane>
+      </n-tabs>
     </div>
   </div>
+
   <n-modal v-model:show="isPreviewOpen" preset="card" :title="t('tools.vps-remaining-value.previewTitle')" style="width: 520px">
     <div class="vps-preview-modal">
       <img v-if="previewUrl" :src="previewUrl" alt="svg preview">
       <div v-else class="vps-preview-empty">
         {{ t('tools.vps-remaining-value.previewMissing') }}
+      </div>
+    </div>
+  </n-modal>
+  <n-modal v-model:show="isHistoryPreviewOpen" preset="card" title="&#x5386;&#x53f2;&#x56fe;&#x7247;&#x9884;&#x89c8;" style="width: 520px">
+    <div class="vps-preview-modal">
+      <img v-if="historyPreviewUrl" :src="historyPreviewUrl" alt="history svg preview">
+      <div v-else class="vps-preview-empty">
+        <span v-if="historyPreviewLoading">&#x52a0;&#x8f7d;&#x4e2d;...</span>
+        <span v-else>&#x6682;&#x65e0;&#x53ef;&#x9884;&#x89c8;&#x7684;&#x56fe;&#x7247;</span>
       </div>
     </div>
   </n-modal>
@@ -918,6 +1452,7 @@ onUnmounted(() => {
 }
 
 .vps-result {
+  width: 118%;
   display: grid;
   gap: 20px;
   padding: 8px;
@@ -925,11 +1460,72 @@ onUnmounted(() => {
   background: linear-gradient(160deg, rgba(59, 130, 246, 0.08), rgba(16, 185, 129, 0.05));
 }
 
+
 .vps-result-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 12px;
-  margin-bottom: 8px;
+  margin-top: 20px;
+}
+
+.vps-result-tab-pane {
+  display: grid;
+  gap: 20px;
+}
+
+.vps-result-tabs :deep(.n-tabs-nav) {
+  justify-content: flex-end;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.vps-result-tabs :deep(.n-tabs-nav-scroll) {
+  padding: 4px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(148, 163, 184, 0.16), rgba(15, 23, 42, 0.08));
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.2);
+  overflow: hidden;
+}
+
+.vps-result-tabs :deep(.n-tabs-nav-scroll-content) {
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.vps-result-tabs :deep(.n-tabs-tab) {
+  height: 36px;
+  border-radius: 999px;
+  padding: 0 18px;
+  font-weight: 600;
+  color: var(--app-text-muted);
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+  margin: 0 2px;
+}
+
+.vps-result-tabs :deep(.n-tabs-tab:hover) {
+  color: var(--app-text);
+  transform: translateY(-1px);
+}
+
+.vps-result-tabs :deep(.n-tabs-tab.n-tabs-tab--active) {
+  color: var(--app-text);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(34, 197, 94, 0.2));
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.vps-result-tabs :deep(.n-tabs-tab__label) {
+  line-height: 1;
+  letter-spacing: 0.2px;
+  border-radius: 999px;
+  padding: 0 2px;
+}
+// .vps-result-tabs {
+//   width: 110%; /* 改成你要的宽度，比如 360px 或 80% */
+// }
+.vps-result-tabs :deep(.n-tabs-bar) {
+  display: none;
 }
 
 .vps-action-btn {
@@ -1138,6 +1734,7 @@ onUnmounted(() => {
 }
 
 .vps-time-days {
+  margin-top: -50px;
   font-size: 28px;
   font-weight: 800;
   color: #2563eb;
@@ -1178,6 +1775,113 @@ onUnmounted(() => {
   color: var(--app-text-muted);
 }
 
+.vps-history-card {
+  background: var(--app-bg-elev);
+  border-radius: 16px;
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+  box-shadow: 0 16px 32px rgba(15, 23, 42, 0.1);
+}
+
+.vps-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.vps-history-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.vps-history-owner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.vps-owner-input {
+  width: 100%;
+  min-width: 0;
+}
+
+.vps-history-empty {
+  font-size: 12px;
+  color: var(--app-text-muted);
+  text-align: center;
+  padding: 8px 0;
+}
+
+.vps-history-list {
+  display: grid;
+  gap: 10px;
+}
+
+.vps-history-item {
+  display: grid;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(15, 23, 42, 0.02);
+}
+
+.vps-history-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.vps-history-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.vps-history-meta {
+  font-size: 11px;
+  color: var(--app-text-muted);
+  white-space: nowrap;
+}
+
+.vps-history-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.vps-history-status {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.vps-history-status.is-sold {
+  color: #ef4444;
+}
+
+.vps-history-status.is-active {
+  color: #22c55e;
+}
+
+.vps-history-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.vps-history-pagination {
+  justify-self: center;
+}
+
+
 @media (max-width: 1024px) {
   .vps-layout {
     grid-template-columns: 1fr;
@@ -1189,6 +1893,10 @@ onUnmounted(() => {
 
   .vps-symbol {
     width: 100%;
+  }
+
+  .vps-history-owner {
+    grid-template-columns: 1fr;
   }
 }
 </style>

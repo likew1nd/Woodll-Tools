@@ -22,12 +22,12 @@
     "developer-productivity"
   ],
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vue-tsc --noEmit && cross-env NODE_OPTIONS=--max_old_space_size=4096 vite build",
     "postbuild": "node scripts/postbuild-copy-php.mjs",
     "preview": "vite preview --port 5050",
     "admin:php": "php -S localhost:8080 -t dist",
-    "admin:php:dev": "php -S localhost:8000 -t server/php",
+    "admin:php:dev": "php -S 0.0.0.0:8000 server/php/index.php",
     "test": "npm run test:unit",
     "test:unit": "vitest --environment jsdom",
     "test:e2e": "playwright test",

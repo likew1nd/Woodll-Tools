@@ -46,7 +46,7 @@ jobs:
           fi
           NOTES=$(git log $RANGE --pretty=format:'- %s (%h)')
           if [ -z "$NOTES" ]; then
-            NOTES='- �Զ�����'
+            NOTES='- 无更新记录'
           fi
           EOF=$(openssl rand -hex 8)
           echo "notes<<$EOF" >> $GITHUB_OUTPUT
@@ -77,11 +77,11 @@ jobs:
           tag_name: v${{ steps.version.outputs.version }}
           name: v${{ steps.version.outputs.version }}
           body: |
-            ## ���˵��
+            ## 更新内容
 
             ${{ steps.notes.outputs.notes }}
 
-            ## ��Դ
+            ## 资源
 
             - `woodll-tools-${{ steps.version.outputs.version }}.zip`
           files: woodll-tools-${{ steps.version.outputs.version }}.zip
