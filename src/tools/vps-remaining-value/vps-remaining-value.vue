@@ -315,14 +315,6 @@ const formattedEnd = computed(() => {
   return format(normalizedEnd.value, 'yyyy-MM-dd');
 });
 
-function getWeightedLength(value: string) {
-  let length = 0;
-  for (const char of value) {
-    length += char.charCodeAt(0) > 255 ? 2 : 1;
-  }
-  return length;
-}
-
 function trimToWeightedLength(value: string, max: number) {
   let length = 0;
   let result = '';
@@ -349,7 +341,6 @@ function sanitizeAlphaNum(value: string, max: number) {
   const normalized = (value ?? '').toString().replace(/[^0-9a-zA-Z]/g, '');
   return normalized.slice(0, max);
 }
-
 function sanitizeNumeric(value: number | string | null, maxDigits: number) {
   const raw = (value ?? '').toString();
   const cleaned = raw.replace(/[^0-9.]/g, '');
@@ -473,22 +464,6 @@ function buildPayload() {
     theme: styleStore.isDarkTheme ? 'dark' : 'light',
     progress: progressPercent.value / 100,
   };
-}
-
-async function fetchPreviewUrl(payload: Record<string, unknown>) {
-  const res = await fetch('/api/vps-remaining-value/svg', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status}`);
-  }
-  const svgText = await res.text();
-  const blob = new Blob([svgText], { type: 'image/svg+xml' });
-  const url = URL.createObjectURL(blob);
-  return url;
 }
 
 async function fetchSvgObjectUrl(url: string) {
@@ -684,9 +659,6 @@ async function loadHistory() {
     message.warning('需要管理码');
     return;
   }
-  if (status === 'sold' && !window.confirm('???????')) {
-    return;
-  }
   historyLoading.value = true;
   try {
     const res = await fetch(`/api/vps-remaining-value/history?owner_key=${encodeURIComponent(ownerKey.value)}`);
@@ -832,7 +804,7 @@ const invalidRange = computed(() => {
 watch(
   settleCurrency,
   (next) => {
-    currencySymbol.value = CURRENCY_SYMBOL_MAP[next] ? currencySymbol.value: CURRENCY_SYMBOL_MAP[next];
+    currencySymbol.value = CURRENCY_SYMBOL_MAP[next] ? currencySymbol.value : CURRENCY_SYMBOL_MAP[next];
   },
   { immediate: true },
 );
@@ -1000,10 +972,9 @@ onUnmounted(() => {
             <div class="vps-row vps-row-full">
               <n-input
                 v-model:value="productName"
-                @update:value="onProductNameInput"
                 placeholder="VPS 产品名称"
+                @update:value="onProductNameInput"
               />
-
             </div>
           </div>
           <div class="vps-field vps-field-row">
@@ -1161,10 +1132,9 @@ onUnmounted(() => {
             <div class="vps-row vps-row-full">
               <n-input
                 v-model:value="remark"
-                @update:value="onRemarkInput"
                 placeholder="最多40个字符"
+                @update:value="onRemarkInput"
               />
-
             </div>
           </div>
           <n-alert v-if="invalidRange" type="warning" :show-icon="false">
@@ -1175,13 +1145,9 @@ onUnmounted(() => {
     </div>
 
     <div class="vps-result">
-      
       <n-tabs v-model:value="activeResultTab" type="segment" class="vps-result-tabs">
-        
         <n-tab-pane name="标签展示" :title="t('tools.vps-remaining-value.remainingValue')">
-          
           <div class="vps-result-tab-pane">
-
             <div class="vps-result-card">
               <div class="vps-result-main">
                 <div class="vps-result-icon">
@@ -1195,7 +1161,7 @@ onUnmounted(() => {
                   {{ remainingValue || '--' }}
                 </div>
                 <div class="vps-result-divider" />
-                
+
                 <div class="vps-result-info">
                   <div class="vps-info-row">
                     <span class="vps-info-label">&#x54c1;&#x540d;</span>
@@ -1216,28 +1182,30 @@ onUnmounted(() => {
                   <div class="vps-info-row">
                     <span class="vps-info-label">&#x7eed;&#x8d39;&#x91d1;&#x989d;</span>
                     <span class="vps-info-value">{{ renewalText }}</span>
-                    </div>
+                  </div>
                   <div class="vps-info-row">
                     <span class="vps-info-label">备注</span>
                     <span class="vps-info-value">{{ remark || '--' }}</span>
                   </div>
-                  </div>
-                  
-                                                                   </div>
-                                                                   <div class="vps-result-actions">
-                                    <n-button class="vps-action-btn" type="primary" secondary @click="copySvgToClipboard">
-                                      {{ t('tools.vps-remaining-value.copySvg') }}
-                                    </n-button>
-                                    <n-button class="vps-action-btn" type="info" secondary @click="openPreview">
-                                      {{ t('tools.vps-remaining-value.previewSvg') }}
-                                    </n-button>
-                                  </div>   
-                                                                 </div>
-                    
-                              <div class="vps-time-card">
-                                <div class="vps-time-left">
-                                  <div class="vps-time-icon">&#x23f1;</div>
-                                  <div>                  <div class="vps-time-title">
+                </div>
+              </div>
+              <div class="vps-result-actions">
+                <n-button class="vps-action-btn" type="primary" secondary @click="copySvgToClipboard">
+                  {{ t('tools.vps-remaining-value.copySvg') }}
+                </n-button>
+                <n-button class="vps-action-btn" type="info" secondary @click="openPreview">
+                  {{ t('tools.vps-remaining-value.previewSvg') }}
+                </n-button>
+              </div>
+            </div>
+
+            <div class="vps-time-card">
+              <div class="vps-time-left">
+                <div class="vps-time-icon">
+                  &#x23f1;
+                </div>
+                <div>
+                  <div class="vps-time-title">
                     {{ t('tools.vps-remaining-value.remainingTime') }}
                   </div>
                   <div class="vps-time-sub">
@@ -1267,7 +1235,9 @@ onUnmounted(() => {
           <div class="vps-result-tab-pane">
             <div class="vps-history-card">
               <div class="vps-history-header">
-                <div class="vps-history-title">&#x5386;&#x53f2;&#x8bb0;&#x5f55;</div>
+                <div class="vps-history-title">
+                  &#x5386;&#x53f2;&#x8bb0;&#x5f55;
+                </div>
                 <n-button size="small" secondary :loading="historyLoading" @click="loadHistory">
                   &#x5237;&#x65b0;
                 </n-button>
@@ -1309,22 +1279,22 @@ onUnmounted(() => {
                       <n-button size="tiny" secondary @click="openShareLink(item.token)">
                         &#x67e5;&#x770b;&#x56fe;&#x7247;
                       </n-button>
-                    <n-popconfirm
-                      :disabled="item.status === 'sold'"
-                      positive-text="确认"
-                      negative-text="取消"
-                      @positive-click="markSold(item.id, 'sold')"
-                    >
-                      <template #trigger>
-                        <n-button size="tiny" type="error" secondary :disabled="item.status === 'sold'">
-                          &#x6807;&#x8bb0;&#x5df2;&#x552e;
-                        </n-button>
-                      </template>
-                      确认标记已售？
-                    </n-popconfirm>
+                      <n-popconfirm
+                        :disabled="item.status === 'sold'"
+                        positive-text="确认"
+                        negative-text="取消"
+                        @positive-click="markSold(item.id, 'sold')"
+                      >
+                        <template #trigger>
+                          <n-button size="tiny" type="error" secondary :disabled="item.status === 'sold'">
+                            &#x6807;&#x8bb0;&#x5df2;&#x552e;
+                          </n-button>
+                        </template>
+                        确认标记已售？
+                      </n-popconfirm>
+                    </div>
                   </div>
                 </div>
-              </div>
               </div>
               <n-pagination
                 v-if="historyItems.length > historyPageSize"
@@ -1459,7 +1429,6 @@ onUnmounted(() => {
   border-radius: 20px;
   background: linear-gradient(160deg, rgba(59, 130, 246, 0.08), rgba(16, 185, 129, 0.05));
 }
-
 
 .vps-result-actions {
   display: flex;
@@ -1881,12 +1850,10 @@ onUnmounted(() => {
   justify-self: center;
 }
 
-
 @media (max-width: 1024px) {
   .vps-layout {
     grid-template-columns: 1fr;
   }
-
   .vps-row {
     grid-template-columns: 1fr;
   }
