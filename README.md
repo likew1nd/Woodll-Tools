@@ -47,6 +47,9 @@
 ### Nginx 必需配置（否则 /admin 会 404）
 
 ```nginx
+location / {
+    try_files $uri $uri/ /index.html;
+}
 location /api/ {
   try_files $uri $uri/ /api/index.php?$query_string;
 }
